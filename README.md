@@ -1,3 +1,11 @@
+# What is Extension Cord?
+
+Extenion Cord is a web application for managing test cases and planning QA work. It is aimed at the software QA community.
+
+# How is it implemented?
+
+Python/Django/Javascript/jQuery/Mysql
+
 # Installation
 * `mysql < make_initial_db.sql`
 * `pip install -r requirements.txt`
@@ -17,3 +25,5 @@
     sudo /etc/init.d/apache2 restart`
 * Restart apache: `sudo apache2 graceful`
 * You're all set to go!
+
+# Extension Cord is released under the Apache 2.0 license
