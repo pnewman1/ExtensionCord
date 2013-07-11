@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block title %} Test Case Report - {{ testcase.name }} {% endblock %}
+
+{% block content %}
+<div class="span10" id="content">
+  <legend style="text-align:right">
+    <h2 class="pull-left">  Results for "{{ testcase.name }}"  </h2>
+  <span>
+    <a href="../"> Edit Details</a>
+  </span>
+  </legend>
+  <br />
+
+  <div id="plot_material" class="span12 row">
+  <div class="span3">
+
+  <!-- getting rid of this for now.
+      <legend class="plotFilter"> Filters </legend>
+
+      <span> Start Date</span><br/>
+      <input type="text" id="startDate"/>
+      <br />
+      <span> End Date</span><br/>
+      <input type="text" id="endDate"/>
+      <br>
+
+      <br>
+      <span class="help"> Ctrl+click to select multiple options, Cmd+click if Mac </span>
+      <br>
+      <button class="btn btn-info" onclick="refreshPlot('testCase');return false;">Go</button>
+      <!-- a gif to show loading while ajax call is being made -->
+  <!--
+      <span id="ajaxLoad" style="display:none"><img src='/static/ajax-loader.gif' alt='loading...'/></span>
+  -->
+  </div>
+
+  <div class="span7">
+      <center><div id="plot" ></div></center>
+  </div>
+  </div> <!-- end id="plot_material -->
+
+  <br>
+  <hr class="span12">
+
+  <div class="span12" id="resultLogs">
+      <h2>Result Log</h2>
+      <br>
+      <p>Note: The log will be filtered with the plot</p>
+
+      <table class="table table-bordered table-condensed" id="resultLogsTable">
+          <thead>
+              <th> Timestamp</th>
+              <th> Test Plan </th>
+              <th> Test Case</th>
+              <th> Tester</th>
+              <th> Result </th>
+              <th> Bug Ticket</th>
+              <th> Note </th>
+          </thead>
+          <tbody>
+
+      {% for result in all_results %}
+            <tr>
+              <td> {{ result.timestamp }}</td>
+              <td><a href="/test_plan/{{result.testplan_testcase_link.testplan.id}}/plot/">{{ result.testplan_testcase_link.testplan.name }}</a></td>
+              <td><a href="/test_case/{{result.testplan_testcase_link.testcase.id}}">{{ result.testplan_testcase_link.testcase.name }}</a></td>
+              <td> {{ result.tester }}</td>
+              <td> {{ result.status }}</td>
+              <td><a href={{bug_url}}{{result.bug_ticket}}>{{ result.bug_ticket }}</a></td>
+              <td><textarea readonly="readonly"> {{ result.note }}</textarea></td>
+            </tr>
+      {% endfor %}
+          </tbody>
+      </table>
+   </div>
+</div>
+{% endblock %}
+
+
+
+{% block post_js %}
+<!-- jq plot plugin -->
+<!--[if lt IE 9] -->
+<script language="javascript" type="text/javascript" src="/static/3p/excanvas.min.js"></script>
+<script language="javascript" type="text/javascript" src="/static/3p/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.pointLabels.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.highlighter.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/3p/jquery.jqplot.min.css" />
+<!-- end jq plot -->
+
+    <script type="text/javascript">
+      var pass_list = {{ pass_list|safe|default:"[]" }};
+      var fail_list = {{ fail_list|safe|default:"[]" }};
+
+      var mindate = "{{ mindate }}";
+      var maxdate = "{{ maxdate }}";
+    </script>
+    <script type="text/javascript" src="/static/js/test_case_plot.js"></script>
+{% endblock  %}

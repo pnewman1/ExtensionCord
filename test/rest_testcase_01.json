@@ -1,0 +1,43 @@
+[
+  {
+    "name": "A new Test Case! string <= 255 chars",
+    "description": "An awesome new Test Case",
+    "author": "jjones",
+    "enabled": true,
+    "is_automated": true,
+    "folder_id": 2,
+    "added_version": "added_version is a string <= 100 chars",
+    "deprecated_version": "deprecated_version is a string <= 100 chars",
+    "bug_id": "bug_id is a string <= 100 chars",
+    "language": "J",
+    "test_script_file": "/some/path/to/script.sh",
+    "method_name": "MethodUnderTest",
+    "import_id": 42,
+    "creation_date": "2013-01-15T12:00:00",
+    "priority": "P2",
+    "product": "Purchase", 
+    "case_type": "Regression",
+    "testplan_ids": [],
+    "design_steps":
+      [
+        {
+          "step_number": 1,
+          "procedure": "Ask for the meaning of life",
+          "expected": "Get answer 42",
+          "comments": "But now we need the question",
+          "import_id": 42
+        },
+        {
+          "step_number": 2,
+          "procedure": "Ask for the question of life",
+          "expected": "Get 'Thanks for all the fish'"
+        }
+      ]
+  },
+  {
+    "name": "A minimal Test Case!",
+    "description": "A very merry Test Case",
+    "author": "jjones",
+    "folder_id": 2
+  }
+]

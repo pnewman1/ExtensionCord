@@ -1,0 +1,131 @@
+{% extends "filter_base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block title %}
+{% if plan %}Edit Plan Details:{{ testplan.name }}
+{% else %}Create New Plan{% endif %}
+{% endblock %}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+<!-- TEST PLAN FORM BEGIN -->
+<div class="span9">
+  <div class="row-fluid">
+    <div class="offset4 span8">
+      {% if plan and not clone %}
+      <div class="row-fluid">
+        <ul class="nav nav-pills">
+          <li class="active"><a href="#">Edit&nbsp;Plan&nbsp;Details</a></li>
+          <li><a href="{% url plan_add_tests plan.id %}">Add&nbsp;Tests</a></li>
+          <li><a href="{% url plan_review_tests plan.id %}">Review&nbsp;Plan</a></li>
+          <li><a href="{% url plan_add_results plan.id %}">Add&nbsp;Result</a></li>
+          <li><a href="{% url plan_analyze plan.id %}">Analyze</a></li>
+          <li><a href="{% url plan_view_plot plan.id %}">View&nbsp;Progress</a></li>
+          <li><a href="{% url plan_clone plan.id %}">Clone&nbsp;This&nbsp;Test&nbsp;Plan</a></li>
+        </ul>
+      </div>
+      {% endif %}
+      <form method="post" action="." class="form-horizontal" onsubmit="return createPlan.validate()" id="Form">
+        {% csrf_token %}
+        {% if plan and not clone %} <!-- if editing an existing test plan execute the following -->
+        <legend>
+          <div class="btn-group" >
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <h3 rel="tooltip" data-placement="right" data-original-title="click for more actions">{{ plan.name }}</h3></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url plan_add_tests plan.id %}">Add Tests</a></li>
+              <li><a href="{% url plan_review_tests plan.id %}">Remove Tests</a></li>
+              <li><a href="{% url plan_add_results plan.id %}">Add Results</a></li>
+              <li><a href="{% url plan_view_plot plan.id %}">Progress Report</a></li>
+            </ul>
+          </div>
+        </legend>
+        {% elif clone %}
+        <legend>
+          <h2> Clone {{ previous_name }}</h2>
+        </legend>
+        {% else %}
+        <legend>
+          <h2> Create Test Plan </h2>
+        </legend>
+        <div id="invalid_form" style="display: none;">
+            <font color="red"><strong>Invalid Form: </strong>Please check the required fields in red and try again.</font>
+        </div>
+       {% endif %}
+
+        {% for field in form %}
+        <div class="control-group">
+          <b class="error-bold">{{ field.errors }}</b>
+          {% if field.html_name == "creator" %}
+          {{ field }}
+          <label class="control-label" id="{{ field.html_name }}"><span id="label_{{field.html_name}}">{{ field.label }}:</span></label>
+          <div class="controls">
+            {{ author }}
+          </div>
+          {% elif field.html_name == "start_date" %}
+          <label class="control-label" id="start_date"><span id="label_{{field.html_name}}">{{ field.label }}:</span></label>
+          <div class="controls dates">
+            {{ field }}
+          </div>
+          {% elif field.html_name == "end_date" %}
+          <label class="control-label" id="end_date"><span id="label_{{field.html_name}}">{{ field.label }}:</span></label>
+          <div class="controls dates">
+            {{ field }}
+          </div>
+
+          <!--  this is where every other field gets placed -->
+          {% else %}
+          <label class="control-label" id="{{ field.html_name }}"><span id="label_{{field.html_name}}">{{ field.label }}</span>:
+
+          </label>
+          <div class="controls ">
+            {{ field }}
+          </div>
+          {% endif %}
+        </div>
+        
+        {% endfor %}
+
+        {% if clone %}
+           <input type="hidden" name="previous_plan_id" value={{ previous_id }} id="previous_id" /> 
+        {% endif %}
+
+
+        <div class="divider-horizontal">
+        </div>
+        <input type="submit" class="btn btn-primary" value="Submit"/>
+        <a href="{% url home %}" class="btn">Cancel</a>
+      </form>
+    </div>
+    <!-- TEST PLAN FORM END-->
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block post_js %}
+{{ block.super }}
+<script src="/static/js/test_plan_form.js" type="text/javascript"></script>
+{% endblock %}

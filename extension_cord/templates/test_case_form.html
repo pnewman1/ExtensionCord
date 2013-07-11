@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block title %}Test Case Form{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" media="screen" href="/static/3p/jqGrid/css/ui-lightness/jquery-ui-1.8.21.custom.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/static/3p/jqGrid/css/ui.jqgrid.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/static/3p/jqGrid/css/ui.multiselect.css" />
+
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+<div class="span12" id="content">
+
+  <form method="post" action="." class="form-horizontal" onsubmit="return testcaseform.validate()" name="Form" id="Form">
+
+    {% csrf_token %}
+    {% if id %}
+
+    <div class="row-fluid">
+      <div class="offset3 span9">
+          <ul class="nav nav-pills">
+            <li><a href="/test_case/{{id}}"> View </a></li>
+            <li class="active"><a href="#">Edit&nbsp;Test&nbsp;Case&nbsp;Details</a></li>
+            <li><a href="/test_case/{{id}}/result"> Execution History </a></li>
+            <li><a href="/clone_test_case/{{id}}"> Clone This Test Case </a></li>
+          </ul>
+      </div>
+    </div>
+
+
+    <legend style="text-align:left">
+
+      <h2>{{ test_case.name }}</h2>
+
+    </legend>
+
+    {% elif clone %}
+    <legend style="text-align:left">
+      <h2>Cloning Test Case {{ prior_id }} </h2>
+    </legend>
+    {% else %}
+    <legend style="text-align:left">
+      <h2>Create Test Case</h2>
+    </legend>
+    {% endif %}
+
+    <p><u id="note">Note: Bold fields are <b>required</b></u></p>
+    <div id="invalid_form" style="display: none;">
+        <font color="red"><strong>Invalid Form: </strong>Please check the required fields in red and try again.</font>
+    </div>
+    <br />
+    <div id="fields form">
+
+      <!-- Display Test Case ID if editing a test case-->
+      {% if id %}
+      <div class="control-group">
+        <label  class="control-label" id="id"><b>ID:</b></label>
+        <div class="controls">
+          <span> {{id}} </span>
+        </div>
+      </div>
+      {% endif %}
+      <!-- End Display ID -->
+
+      <!-- if the field is design_steps, put in the custom table -->
+      {% for field in form %}
+      <div class="control-group">
+
+        {% if field.html_name == "design_steps" %}
+        <label class="control-label" id="design_steps"> <span id="label_design_steps">Design Steps</span>: </label>
+        {{ field.errors }}
+        <div class="controls">
+          <table id="designstepstable" class="scroll"></table>
+          <div id="designstepsgridpager"></div>
+        </div>
+        {% elif field.html_name == "uploads" %}
+            {% if id %}
+        <label class="control-label" id="uploads"> <span id="label_uploads">Uploads</span>: </label>
+        {{ field.errors }}
+        <div class="controls">
+          <table id="uploadstable" class="scroll"></table>
+          <div id="uploadsgridpager"></div>
+          <div><a href="{% url upload-new id %}">Add Uploads</a></div>
+        </div>
+            {% endif %}
+        {% elif field.html_name == "case_type" %}
+        <label class="control-label" id="{{ field.html_name }}">
+          <span id="label_{{field.html_name}}">Type</span>:
+        </label>
+        {{ field.errors }}
+        <div class="controls">
+          {{ field }}
+        </div>
+        {% elif field.html_name == "product" %}
+        <label class="control-label" id="{{ field.html_name }}">
+          <span id="label_{{field.html_name}}">{{ field.label }}</span>:
+        </label>
+        {{ field.errors }}
+        <div class="controls" id="product-controls">
+          {{ field }}
+        </div>
+        <!-- if field is the author / creator, manually put in the data so its read only -->
+        {% elif field.html_name == "author"%}
+        {{ field }}
+        <label class="control-label" id="{{ field.html_name }}">
+          <span id="label_{{field.html_name}}">{{ field.label }}
+          </span>:
+        </label>
+        <div class="controls">
+          {% if test_case.id %}
+          {{ test_case.author }}
+          {% else %}
+          {{ author }}
+          {% endif %}
+        </div>
+
+        {% elif field.html_name == "folder" %}
+        <label class="control-label" id="{{ field.html_name }}"><span id="label_{{field.html_name}}">{{ field.label }}</span>:
+        </label>
+        {{ field.errors }}
+        <div class="controls">
+
+          <span id="folder_name">
+            <a href="{% url testcases %}?key={{ folderid }}">{{ folder_path }}</a>
+          </span>
+          <input type="hidden" name="folder" id="id_folder" value="{{ folderid }}" />
+
+          &nbsp;&nbsp;&nbsp;<a id="change-folder-button" href="#" class="btn btn-mini">Change</a>
+        </div>
+
+        <!--  this is where every other field gets placed -->
+        {% else %} <!-- Normal Fields -->
+        <label class="control-label" id="{{ field.html_name }}"><span id="label_{{field.html_name}}">{{ field.label }}</span>:
+        </label>
+        {{ field.errors }}
+        <div class="controls">
+          {{ field }}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% if id %}
+    <input type="submit" class="btn btn-info" value="Save"/>
+    <a href="{% url case_view test_case.id %}" class="btn">Cancel</a>
+    {% else %}
+    <input type="submit" class="btn btn-info" value="Submit"/>
+    <a href="{% url testcases %}" class="btn">Cancel</a>
+    {% endif %}
+  </form>
+</div>
+
+</div>
+
+</div>
+
+<div id="change-folder-dialog" title="Choose New Folder">
+    <div id="folders" class="row-fluid">
+      <div class="span12" id="root">
+      </div>
+      <br/>
+      <div class="row-fluid">
+          <div class="btn-groups span12">
+            <a id="button-add" href="#" class="btn btn-mini pull-left">Add Folder</a>
+            <a id="button-delete" href="#" class="btn btn-mini pull-left">Delete Folder</a>
+          </div>
+          <div id="create-dialog" title="Create New Folder">
+            <p class="validateTips"></p>
+            <form >
+              <fieldset>
+                <input type="text" name="newfoldername" id="newfoldername" class="text ui-widget-content ui-corner-all" /><br />
+                Add folder to root <input type="checkbox" name="addtoroot" id="addtoroot" />
+              </fieldset>
+            </form>
+          </div>
+          <div id='delete-folder' title="Delete Folder">
+                <p class="validateTips"></p>
+          </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block post_js %}
+<script src="/static/3p/jquery.numeric.js" type="text/javascript"></script>
+<script src="/static/3p/jqGrid/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script src="/static/3p/jqGrid/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+<script src="/static/3p/jqGrid/js/jquery-ui-1.8.21.custom.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  // RECEIVE JSON DATA
+  {% if gridData %}
+  var gridData = {{ gridData|safe }};
+  {% else %}
+  var gridData = undefined;
+  {% endif %}
+  // END JSON DATA EVALUATION
+
+  // curr_cat is passed from the server which specifies what current test case is. (only applicable when editing a case)
+  {% if curr_cat and not clone %}
+    var curr_cat = {{ curr_cat }};
+  {% else %}
+    // occurs when creating a new test case, so nothing should be defaulted
+    // assign a negative pk, so nothing will match it
+    var curr_cat = -1;
+  {% endif %}
+
+
+  var product_names = new Array();
+  {% for item in product_lookup %}
+    product_names.push("{{ item.name }}");
+  {% endfor %}
+
+  $(function() {
+  var string = product_names;
+  $( "#product-controls input" ).autocomplete({
+  source: product_names
+  });
+  });
+
+  var current_testcase_id = -1;
+  {% if clone %}
+  var clone = true;
+  {% else %}
+  var clone = false;
+  {% endif %}
+  {% if id %}
+  current_testcase_id = {{ id }};
+  {% endif %}
+  var MEDIA_URL = "{{ MEDIA_URL }}";
+
+</script>
+<script type="text/javascript" src="/static/js/folderTree.js"></script>
+<script type="text/javascript" src="/static/js/test_case_form.js"></script>
+{% endblock %}

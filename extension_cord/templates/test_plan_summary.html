@@ -1,0 +1,181 @@
+{% extends "filter_base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block title %}Test plan summary{% endblock %}
+{% block sidebar %}
+{% endblock %}
+{% block content %}
+      
+<div class="leftmost" id="advancedsearch" style="display:{{ display }} float:left;">
+    <form id="planSearchForm" onsubmit="return false;">
+      <div> Name: </div><div><input type="text" name="asname" id="asname" class="input-medium"></div>
+      <div> ID: </div><div><input type="text" name="asid" id="asid" class="input-medium"></div>
+      <div> Release: </div><div><input type="text" name="asrelease" id="asrelease" class="input-medium"></div>
+      <div> Leader: </div><div><input type="text" name="asleader" id="asleader" class="input-medium"></div>
+      <br/>
+      <div><button type="submit" class="btn"><i type="submit" class="icon-search"></i>&nbsp;Search</button></div>
+    </form>
+</div>
+{%if search %}
+<div class="span12" id="content" style="width:80%;">
+{% else %}
+<div class="span12" id="content">
+{% endif %}
+  <div class="row-fluid">
+    <div class="span3">
+    {% if archive %}
+      <h1 class="pull-left">All Plans</h1>
+    {% else %}
+      <h1 class="pull-left">Active Plans</h1>
+    {% endif %}
+    </div>
+    <div class="span2 offset3">
+      <div class="btn-groups">
+        <a href="{% url plan_create %}" class="btn btn-mini pull-left">Add Plan</a>
+        {% if archive %}
+           <a href="/test_plan/" class="btn btn-mini pull-left">View Active Test Plans</a>
+        {% else %}
+           <a href="/test_plan/archive/" class="btn btn-mini pull-left">View All Test Plans</a>
+        {% endif%}
+        {% if search %}
+        <a id="exit-search-btn" href="/test_plan/" class="btn btn-mini pull-left">Exit Search</a>
+        {% else %}
+        <a id="search-btn" href="/test_plan/archive/?search=true" class="btn btn-mini pull-left">Search</a>
+        {% endif %}
+
+        <!-- <a href="#" onclick="return false;" class="btn btn-mini pull-left" id="viewDisabled">View&nbsp;Disabled</a> -->
+        <!-- <a id="button-delete" href="#" class="btn pull-left">- Folder</a> -->
+      </div>
+    </div>
+
+    <div class="span4">
+      {% block ajaxPagination %}
+            <div class="numelem btn-group pull-right">
+               <button class="btn dropdown-toggle btn-mini" data-toggle="dropdown"><span class="caret"></span></button>
+               <ol class="dropdown-menu">
+               {% if archive %}
+                 <li><a href="{% url testplan_archive%}?elems=10">10 per page</a></li>
+                 <li><a href="{% url testplan_archive%}?elems=20">20 per page</a></li>
+                 <li><a href="{% url testplan_archive%}?elems=50">50 per page</a></li>
+                 <li><a href="{% url testplan_archive%}?elems=100">100 per page</a></li>
+               {% else %}
+                 <li><a href="{% url testplans%}?elems=10">10 per page</a></li>
+                 <li><a href="{% url testplans%}?elems=20">20 per page</a></li>
+                 <li><a href="{% url testplans%}?elems=50">50 per page</a></li>
+                 <li><a href="{% url testplans%}?elems=100">100 per page</a></li>
+               {% endif%}
+               </ol>
+             </div>
+    
+      <div class="pagination pagination-right pagination-mini custom-pagination">
+        <ul>
+          {% if plans.has_previous %}
+            {% if archive %}
+              <li id="prevpage" class="ajaxPaginate"><a href="{% url testplan_archive %}?page={{ plans.previous_page_number }}" >&laquo;</a></li>
+            {% else %}
+              <li id="prevpage" class="ajaxPaginate"><a href="{% url testplans %}?page={{ plans.previous_page_number }}" >&laquo;</a></li>
+            {% endif %}
+          {% else %}
+          <li id="prevpage" class="ajaxPaginate disabled"><a href="#" onclick="return false;">&laquo;</a></li>
+          {% endif %}
+
+          {% if plans.start_index == 0 and plans.end_index == 0 %}
+          <li id="currpage" class="disabled"><a href="#"  onclick="return false;">0</a></li>
+          {% else %}
+          <li id="currpage" class="disabled"><a href="#"  onclick="return false;">{{ plans.start_index }}-{{ plans.end_index }}&nbsp;of&nbsp;{{ total_count }}</a></li>
+          {% endif %}
+
+          {% if plans.has_next %}
+            {% if archive %}
+              <li id="nextpage" class="ajaxPaginate"><a href="{% url testplan_archive %}?page={{ plans.next_page_number }}" >&raquo;</a></li>
+            {% else %}
+              <li id="nextpage" class="ajaxPaginate"><a href="{% url testplans %}?page={{ plans.next_page_number }}" >&raquo;</a></li>
+            {% endif %}
+          {% else %}
+          <li id="nextpage" class="ajaxPaginate disabled"><a href="#" onclick="return false;">&raquo;</a></li>
+          {% endif %}
+        </ul>
+      </div>
+      {% endblock %}
+
+
+    </div>
+  </div>
+
+
+
+  <table class="table table-striped tablesorter" id="activeTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Release</th>
+        <th>Leader</th>
+        <th>Start&nbsp;Date</th>
+        <th>End&nbsp;Date</th>
+        <th style="width:21em"><center>&nbsp;</center></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in plans %}
+      <tr>
+        <td> {{ entry.id }} </td>
+        <td><a href="{% url plan_view_plot entry.id %}">{{ entry.name }}</a></td>
+        <td>{{ entry.release }}</td>
+        <td>{{ entry.leader }}</td>
+        <td>{{ entry.start_date }} </td>
+        <td>{{ entry.end_date }} </td>
+        <td nowrap="true">
+          <center>
+      <a href="{% url plan_view_plot entry.id %}">{{ entry.result_counts.passed }}/{{ entry.testcases.count }}</a> |
+            <a href="{% url plan_add_tests entry.id %}">Add&nbsp;Tests</a> |
+            <a href="{% url plan_add_results entry.id %}">Add&nbsp;Results</a>
+          </center>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% if not archive %}
+  <a href="/test_plan/archive/">View All Test Plans</a>
+{% endif%}
+
+</div>
+{% endblock %}
+
+{% block post_js %}
+<script src="/static/js/test_plan_summary.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready( function() {
+  // make the searchbar empty if user refreshes the page
+  $("#searchbar").val('');
+  })
+</script>
+<script type="text/javascript">
+  $(document).ready(function() 
+    { 
+        $("#activeTable").tablesorter(); 
+    } 
+  ); 
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+[
+    {
+        "name":"TEST_PLAN_00_SIMPLEST",
+        "creator":"jjones",
+        "start_date":"2013-02-05"
+    },
+    {
+        "name":"TEST_PLAN_01_COMPLETE",
+        "creator":"jjones",
+        "enabled":true,
+        "schedule":"string less than 20",
+        "release":"string less than 50",
+        "start_date":"2013-02-03",
+        "end_date":"2020-12-25",
+        "leader":"string less than 300",
+        "testcase_ids": [20526,20525,20524,20523,20522,20521,20520]
+    },
+    {
+        "name":"TEST_PLAN_02_COMPLETE_DISABLED",
+        "creator":"jjones",
+        "enabled":false,
+        "schedule":"string less than 20",
+        "release":"string less than 50",
+        "start_date":"2013-5-11",
+        "end_date":"2013-5-12",
+        "leader":"string less than 300",
+        "testcase_ids": [20526,20525,20524,20523,20522,20521,20520]
+    },
+    {
+        "name":"TEST_PLAN_03_LONGRANGE",
+        "creator":"jjones",
+        "start_date":"2001-02-14",
+        "end_date":"2020-12-24",
+        "testcase_ids": [20526,20525,20524,20523,20522,20521,20520]
+    },
+    {
+        "name":"TEST_PLAN_04_LAST",
+        "creator":"jjones",
+        "start_date":"2001-02-14",
+        "end_date":"2020-12-23",
+        "testcase_ids": [20526,20525,20524,20523,20522,20521,20520]
+    }
+]

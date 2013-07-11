@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block content %}
+<div class="span9" id="content">
+
+  <h1> Please navigate through the sidebar </h1>
+  <hr>
+  <h1> New to Extension Cord? </h1>
+  <h3> Here is a basic procedure  </h3>
+  <ol>
+    {% if user.is_authenticated %}
+      <li>Log in (You're logged in!)</li>
+    {% else %}
+      <li><a href="{% url login %}"> Log in </a></li>
+    {% endif %}
+    <li><a href="{% url ecapp.views.TestCaseViews.create_test_case_view %}"> Create a test case </a></li>
+    <li><a href="{% url ecapp.views.TestPlanViews.create_test_plan_view %}"> Create a test plan </a></li>
+    <li><a href="{% url testplans %}"> Find your test plan and add test cases </a></li>
+    <li> Mark your test case as "pass" or "fail" in your test plan</a></li>
+    <li> View the results of your test plan</li>
+  </ol>
+
+
+</div>
+{% endblock %}
+

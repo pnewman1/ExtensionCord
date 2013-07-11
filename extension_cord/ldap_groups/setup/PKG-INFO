@@ -1,0 +1,20 @@
+Metadata-Version: 1.0
+Name: django-ldap-groups
+Version: 0.1.3
+Summary: A Django app for authenticating and authorizing against LDAP
+Home-page: http://code.google.com/p/django-ldap-groups/
+Author: Peter Herndon
+Author-email: tpherndon@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP

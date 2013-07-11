@@ -1,0 +1,134 @@
+{% extends "filter_base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block title %} Progress Report:{{ testplan.name }}{% endblock %}
+{% block sidebar %}
+<div class="span3">
+
+  {% block adddelfolders %}
+  {% endblock %}
+
+  <div class="row-fluid leftmost">
+    <table class="table table-hover">
+      <thead>
+        <tr><h3>{{ testplan.name }}</h3></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TestCases</td>
+          <td>{{ testplan.testcases.count }}</td>
+        </tr>
+        <tr>
+          <td>Leader</td>
+          <td>{{ testplan.leader }}</td>
+        </tr>
+        <tr>
+          <td>Start&nbsp;Date</td>
+          <td>{{ testplan.start_date }}</td>
+        </tr>
+        <tr>
+          <td>End&nbsp;Date</td>
+          <td>{{ testplan.end_date }}</td>
+        </tr>
+        <tr>
+          <td>Progress</td>
+          <td>{{ testplan.result_counts.progress|floatformat:2 }} %</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="span9" id="content">
+  <div class="row-fluid">
+    <ul class="nav nav-pills">
+      <li><a href="{% url plan_edit testplan.id %}">Edit&nbsp;Plan&nbsp;Details</a></li>
+      <li><a href="{% url plan_add_tests testplan.id %}">Add&nbsp;Tests</a></li>
+      <li><a href="{% url plan_review_tests testplan.id %}">Review&nbsp;Plan</a></li>
+      <li><a href="{% url plan_add_results testplan.id %}">Add&nbsp;Result</a></li>
+      <li class="active"><a href="#">Analyze</a></li>
+      <li><a href="{% url plan_view_plot testplan.id %}">View&nbsp;Progress</a></li>
+    </ul>
+  </div>
+  <div class="row-fluid">
+    <h4 >Report Parameters</h4>
+    <div class="span10">
+      <form method="GET" action="." class="form-horizontal" name="Form" id="Form">
+          <div> Down the left side: </div>
+          <div>
+              <select name="left" id='left' class="input-medium"> 
+                  <option value="Priority" {% ifequal leftstr "Priority" %}selected{%endifequal%}>Priority</option>
+                  <option value="Product" {% ifequal leftstr "Product" %}selected{%endifequal%}>Product</option>
+                  <option value="Folder" {% ifequal leftstr "Folder" %}selected{%endifequal%}>Folder</option>
+                  <option value="Tester" {% ifequal leftstr "Tester" %}selected{%endifequal%}>Tester</option>
+	          <!-- <option value="Assignee" {% ifequal leftstr "Assignee" %}selected{%endifequal%}>Assignee</option> -->
+              </select> 
+          </div>
+          <div> Across the Top: </div>
+          <div>
+              <select name="top" id='top' class="input-medium"> 
+                  <option value="Priority" {% ifequal topstr "Priority" %}selected{%endifequal%}>Priority</option>
+                  <option value="Product" {% ifequal topstr "Product" %}selected{%endifequal%}>Product</option>
+                  <option value="Folder" {% ifequal topstr "Folder" %}selected{%endifequal%}>Folder</option>
+                  <option value="Tester" {% ifequal topstr "Tester" %}selected{%endifequal%}>Tester</option>
+                  <!-- <option value="Assignee" {% ifequal leftstr "Assignee" %}selected{%endifequal%}>Assignee</option> -->
+              </select> 
+          </div>
+          <br>
+          <input type="submit" class="btn btn-info" value="Get Report"/>
+      </form>
+    </div>
+  </div>
+{% if headers and data %}
+  <div class="row-fluid">
+      <h4>Report of {{leftstr}} vs {{topstr}}</h4>
+    <table class="table table-bordered compact">
+      <thead>
+        {% for header in headers %}
+        <th>{{ header }}</th>
+        {% endfor %}
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+            {% for td in row %}
+                {% if td %}
+                  {% if td.name %}
+                  <td>{{td.name}}</td>
+                  {% else %}
+                <td>{{ td.percent }}% ({{ td.passed }}/{{td.cases}})</td>
+                  {% endif %}
+                {% else %}
+                <td>-</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+</div>
+
+{% endblock %}
+

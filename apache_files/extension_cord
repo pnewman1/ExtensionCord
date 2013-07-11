@@ -1,0 +1,7 @@
+NameVirtualHost *:80
+<VirtualHost *:80>
+        ServerAlias extension_cord
+        DocumentRoot /var/www/extension_cord
+        Alias /static/ /var/www/extension_cord/extension_cord/static/
+        WSGIScriptAlias / /var/www/extension_cord/bin/django.wsgi
+</VirtualHost>

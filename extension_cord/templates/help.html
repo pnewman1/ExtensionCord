@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block title %}REST API{% endblock %}
+
+{% block content %}
+
+<div class="span12" id="content">
+
+
+    <h1>Extension Cord Help</h1>
+
+    <hr />
+
+    <h2><strong>Getting Started</strong></h2>
+		<p>Thank you for using Extension Cord. It looks like you've successfully installed Extension Cord and have it running, so this document will focus on usage of the application itself.</p>
+		 
+		<p>For help installing or configuring Extension Cord, please see the <a href="http://github.com/link goes here">installation documentation</a>.</p>
+
+		<h3>Test Cases and Test Plans</h3>
+		
+		<p>Extension Cord's basic units of measuree are test cases and test plans.</p>
+	    
+	    <ul>
+			<li>A test case is a discrete, verifiable behaviour, which may include one or more steps.</li>
+			<li>A test plan is a collection of test cases, to be performed over a planned period of time.</li>
+		</ul>
+
+		<p>A test case may be added to one or more test plans, and test plans may contain many test cases. Test cases are organized in a hierarchical tree of folders.</p>
+
+		<h3>Creating Test Cases</h3>
+
+		<p>We'll begin by adding a test case to Extension Cord. This set of steps assumes that this is your first test case, and includes instructions on adding a folder.</p>
+
+		<ol>
+		  <li>Click <a href="/test_case/">"Test Cases"</a> from the top navigation.</li>
+	      <li>Click the "+folder" button from beneath the folder navigation on the left side of the page. You will be prompted to choose a name for your folder; enter a name in the input box and click "save".</li>
+          <li>Click the folder you just added, then click the "+Test Case" button, which appears at the top of the page.</a>
+          <li>Complete the form, and click "save".</a>
+          <li>Your test case is now saved. You may navigate to your folder and review it.</a>
+		</ol>
+
+		<h3>Creating Test Plans</h3>
+
+		<p>Now that you have a test case, you can add it to a test plan by following these steps:</p>
+
+		<ol>
+		  <li>Click <a href="/test_plan/">"Test Plans"</a> from the top navigation.</li>
+			<li>Click the "+Test Plan" button</li>
+			<li>Complete the form, and click "save".</a>
+			<li>Your test plan is now saved, and you will be directed to a page to add test cases to your new test plan.</li>
+			<li>Navigate to the folder that contains the test cases you would like to add to your test plan, or use the search dialog to find them.</li>
+			<li>Select the test cases you would like to add from the list, and click "Add Test Cases".</a>
+      <li>When you're finished adding test cases, click the "progress report" link. This will show you a summary of your test plan and progress report.
+		</ol>
+		
+		<h3>Tracking Your Results</h3>
+
+		<p>Now you're ready to execute your test plans. That's why we're here, right?</p>
+
+		<p>Here's what to do:</p>
+
+		<ol>
+		  <li>Find your test plan. The Extension Cord homepage lists "active" test plans, where active is defined as testpans that have a start date that is in the past and an end date that is in the future.</li>
+			<li>Click on your test plan, then click on "Add Results".</li>
+			<li>Find the test cases you have executed. This can be done by navigating the folder tree, or by using the search form.</li>
+			<li>Select the test case(s) you would like to update from the list, then click one of the status buttons at the top of the list ("passed", "failed", "blocked", etc)</li>
+			<li>Navigate back to the Progress Report page, the results you've added will be reflected on the chart at the top of the page and the chart in the middle of the page.</li>
+		</ol>
+
+		<p>You can change the status of a test after it's been run an unlimited number of times. Each change will be recorded in the test case's execution history.</p>
+
+		<h2>API Access</h2>
+
+    <p>Extension Cord features a REST api that can be used for integration with other tools and advanced reporting, among other things. The REST api has it's own documentation that can be found <a href="/api">here</a>.</p>
+
+    <hr />
+    
+		<h2>Questions, Comments, Requests</h2>
+
+		<p>Extension Cord is released as open source under the Apache 2.0 license and hosted on <a href="http://github.com/PATH TO PROJEC">Github</a>. We welcome questions, comments, bug reports and patches. </p>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,179 @@
+th.removeCol {
+    width: 2em;
+}
+
+.error-bold {
+    color: red;
+}
+
+.errorlist {
+    font-weight: bold;
+    color: red;
+}
+
+th.resultCol {
+    width: 4em;
+}
+
+#hor span {
+    float: left;
+    margin-left: 0.5em;
+}
+
+ul.dynatree-container {
+    height:500px;
+    border:2px solid gray;
+}
+
+div.alertdiv {
+    height:30px;
+    display:block;
+}
+.leftmost {
+    margin-left:30px;
+}
+
+div.custom-pagination {
+    margin-top:0px;
+    margin-bottom:0px;
+    font-size: 10px;
+}
+
+div#id {
+    border-style:solid;
+    border-width:5px;
+    border-radius:10px;
+    border-color:hsl(0, 0%, 87%);
+    height:100%;
+}
+
+h2 {
+    font-size: 28px;
+}
+
+h2.custom-label {
+    margin-right: 0.5%;
+}
+
+.divider-vertical.custom-divider {
+    background-color: hsl(237, 67%, 76%);
+    height: 20px;
+    margin-top: 10px;
+}
+
+#hor {
+    clear: both;
+}
+
+#radio {
+    margin-left:10em;
+}
+
+.noLeftBorder {
+    padding-left: 0px !important;
+    border-left: 0px !important,
+}
+
+#content {
+    padding-bottom: 5em;
+}
+
+.tableRadioButton {
+    padding-right:0.2em;
+    width: 4em;
+}
+
+.form-horizontal .control-label {
+    width: 250px;
+    padding-right:20px;
+    text-align:left;
+}
+
+.form-horizontal .control-group {
+    margin-bottom: 10px;
+}
+
+
+textarea[readonly] {
+    cursor: default;
+}
+
+input[readonly] {
+    cursor: default;
+}
+
+.form-horizontal .help-block {
+    margin-left: 0px;
+}
+
+.left {
+    text-align: left;
+}
+
+.navbar-inner {
+    min-height: 20px;
+    padding-right: 15px;
+    padding-left: 15px;
+    background: rgb(53,106,160); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(53,106,160,1) 0%, rgba(53,106,160,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(53,106,160,1)), color-stop(100%,rgba(53,106,160,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(53,106,160,1) 0%,rgba(53,106,160,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(53,106,160,1) 0%,rgba(53,106,160,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(53,106,160,1) 0%,rgba(53,106,160,1) 100%); /* IE10+ */
+    background: linear-gradient(top, rgba(53,106,160,1) 0%,rgba(53,106,160,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#356aa0', endColorstr='#356aa0',GradientType=0 ); /* IE6-9 */
+}
+
+.navbar .brand {
+    color: white;
+}
+
+.navbar .nav > li > a {
+    float: none;
+    padding: 9px 10px 11px;
+    line-height: 19px;
+    color: white;
+    text-decoration: none;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0);
+}
+
+.ui-jqgrid .ui-jqgrid-htable th div, .ui-jqgrid-sortable {
+    height:auto;
+    overflow:hidden;
+    white-space:normal !important;
+}
+
+.navbar-inner {
+    min-width: 920px;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+
+}
+
+.filter_title, .filter_title:hover {
+    color: black !important;
+    text-decoration: none !important;
+    cursor: default !important;
+}
+
+#designstepsTable textarea {
+    max-width: 95% !important;
+}
+
+#designstepsTable input {
+    max-width: 70% !important;
+}
+
+.plotFilter {
+    margin-bottom:5%;
+}
+
+.help {
+    font-size: 90%;
+    color: #585858;
+}
+
+.accordion {
+    margin-bottom: 0px;
+}

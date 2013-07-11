@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block sidebar %}
+<div class="leftmost" id="advancedsearch" style="display:none;">
+  <form id="asForm" onsubmit="return false;">
+      <div> Id: </div><div><input type="text" id="asid" class="input-medium"></div>
+      <div> Name: </div><div><input type="text" id="asname" class="input-medium"></div>
+      <div> Desc: </div><div><input type="text" id="asdescription" class="input-medium"></div>
+      <div> Priority: </div>
+      <div>
+          <select id='aspriority' class="input-medium"> 
+              <option value=""></option> 
+              <option value="P1">Critical (P1)</option> 
+              <option value="P2">Major (P2)</option> 
+              <option value="P3">Minor (P3)</option> 
+              <option value="P4">Trivial (P4)</option> 
+          </select> 
+      </div>
+      <div> Default Assignee: </div><div><input type="text" id="asdefaultassignee" class="input-medium"></div> 
+      <div> Author: </div><div><input type="text" id="asauthor" class="input-medium"></div>
+      <div> Bug ID: </div><div><input type="text" id="bugid" class="input-medium"></div>
+      <div> Added Version: </div><div><input type="text" id="addedversion" class="input-medium"></div>
+      <div> Type: </div><div><input type="text" id="astype" class="input-medium"></div>
+      <div> Automated: </div>
+      <div>
+          <select id='asauto' class="input-medium"> 
+              <option value=""></option> 
+              <option value="auto">Automated</option> 
+              <option value="noauto">Not Automated</option> 
+          </select>
+      </div>
+      <div> Product: </div>
+      <div>
+          <select id='asproduct' class="input-medium"> 
+              <option value=""></option> 
+              <option value="error">Error</option> 
+          </select> 
+      </div>
+      <div> Feature: </div><div><input type="text" id="asfeature" class="input-medium"></div>
+      <span id="resultfilter" style="display:none;">
+      <div> With Results of Status: </div>
+      <div>
+          <select id='asstatus' class="input-medium" multiple="multiple"> 
+              <option value=""></option> 
+              <option value="notrun">Not Run (no results exist)</option> 
+              <option value="any">Any Status (results exist)</option> 
+              <option value="passed">Passed</option>
+              <option value="failed">Failed</option>
+              <option value="na">N/A</option>
+              <option value="blocked">Blocked</option>
+              <option value="future">Future</option>
+              <option value="notcomplet">Not Complete</option>
+          </select> 
+      </div>
+      </span>
+      <br/>
+      <div><button type="submit" class="btn"><i type="submit" class="icon-search"></i>&nbsp;Search</button></div>
+  </form>
+</div>
+<!-- An ALL filter. i.e Resets filters  -->
+<div id="folders" class="row-fluid">
+  <div class="leftmost" id="root">
+  </div>
+{% block adddelfolders%}
+<div class="row-fluid">
+  <div class="btn-groups leftmost">
+    <a id="button-add" href="#" class="btn btn-mini pull-left">Add Folder</a>
+    <a id="button-delete" href="#" class="btn btn-mini pull-left">Delete Folder</a>
+    <a id="button-rename" href="#" class="btn btn-mini pull-left">Rename Folder</a>
+  </div>
+  <div id="create-dialog" title="Create New Folder">
+    <p class="validateTips">Please enter the folder name to create:</p>
+    <form >
+      <fieldset>
+        <input type="text" name="newfoldername" id="newfoldername" class="text ui-widget-content ui-corner-all" /><br />
+        Add folder to root <input type="checkbox" name="addtoroot" id="addtoroot" />
+      </fieldset>
+    </form>
+  </div>
+  <div id='delete-folder' title="Delete Folder">
+        <p class="validateTips">Do you want to delete the selected folder?</p>
+  </div>
+  <div id='rename-folder' title="Rename Folder">
+        <p class="validateTips"></p>
+    <form >
+      <fieldset>
+        <input type="text" name="renamefoldername" id="renamefoldername" class="text ui-widget-content ui-corner-all" /><br />
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+</div>
+{% endblock %}
+{% block ajaxPagination %}
+<div class="numelem btn-group pull-right leftmost">
+  <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+  <ol class="dropdown-menu">
+    <li><a href="#" value=10>10&nbsp;per&nbsp;page</a></li>
+    <li><a href="#" value=20>20&nbsp;per&nbsp;page</a></li>
+    <li><a href="#" value=50>50&nbsp;per&nbsp;page</a></li>
+    <li><a href="#" value=100>100&nbsp;per&nbsp;page</a></li>
+  </ol>
+</div>
+<div class="pagination pagination-right custom-pagination">
+  <ul>
+      <li id="prevpage" class="ajaxPaginate"><a href="#" onclick="return false;">&laquo;</a></li>
+      <li id="currpage" class="disabled"><a href="#"  onclick="return false;"></a></li>
+      <li id="nextpage" class="ajaxPaginate"><a href="#" onclick="return false;">&raquo;</a></li>
+  </ul>
+</div>
+
+{% endblock %}
+{% block post_js %}
+{{ block.super }}
+<script type="text/javascript" src="/static/js/folderTree.js"></script>
+{% endblock %}
+

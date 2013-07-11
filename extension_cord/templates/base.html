@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+<html lang="en">
+  <head>
+    {% block top_head %} {% endblock %}
+
+    <title>
+      {% block title %}
+      Home
+      {% endblock %}
+    </title>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}3p/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}3p/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}3p/dynatree/skin/ui.dynatree.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}3p/jquery/css/redmond/jquery-ui-1.8.22.custom.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css">
+    {% block css %}
+    {% endblock %}
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}3p/jquery/js/jquery-1.7.2.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}3p/jquery/js/jquery-ui-1.8.22.custom.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/common.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}3p/bootstrap/js/bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}3p/dynatree/jquery.dynatree.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}3p/jquery.history.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}3p/jquery.tablesorter.js"></script>
+    <script>
+      $(function(){
+      {% if messages %}
+      {% for message in messages %}
+      common.fireAlert("{{ message }}", "alert-{{ message.tags }}");
+      {% endfor %}
+      {% else%}
+      common.closeAlert();
+      {% endif %}
+      })
+    </script>
+    {% block post_js %}
+    {% endblock %}
+    {% block head %}
+    {% endblock %}
+    <link rel="icon" type="image/pico" href="{{ STATIC_URL }}favicon1.ico">
+  </head>
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <div class="nav-collapse">
+            {% block navbar %}
+            <a class="brand" href="{% url home %}">Extension Cord</a>
+
+            <!-- Searchbar -->
+          <form class="form-search pull-right" style="height:18px;display:none;" id="searchForm" onsubmit="return false;">
+            <input type="text" id="searchFormText" class="input-medium search-query">
+            <button type="submit" class="btn"><i type="submit" class="icon-search"></i></button>
+          </form>
+
+          <ul class="nav pull-right">
+              <li><a href="{% url testplans %}">Plans</a></li>
+              <li><a href="{% url testcases %}">Tests</a></li>
+              <li class="divider-vertical custom-divider"></li>
+              <li><a href="{% url api %}">API</a></li>
+              <li><a href="{% url admin:index %}">Admin</a></li>
+              <li><a href="{% url help %}">Help</a></li>
+              {% if user.is_authenticated %}
+              <li><a href="{% url logout %}"> Logout {{ user.username }}</a></li>
+              {% else %}
+              <li><a href="{% url login %}"><b> Log In </b></a></li>
+              {% endif %}
+
+            </ul>
+            {% endblock %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    {% block all_content %}
+    <div class="container-fluid">
+      <div class="row-fluid alertdiv">
+        <div id="alert" class="alert-message">
+          <a class="close" href="#">×</a>
+          <p><strong>NOTE:</strong></p>
+        </div>
+      </div>
+      <div class="row-fluid">
+
+        {% block sidebar %}
+        {% endblock %}
+        {% block content %}
+        {% block contenttitle %}
+        {% endblock  %}
+        {% endblock %}
+
+      </div>
+    </div>
+
+    {% endblock %}
+
+
+  </body>
+</html>

@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+
+{% block title %}REST API{% endblock %}
+
+{% block content %}
+<div class="span12" id="content">
+  <h2> REST API Reference </h2>
+  <hr>
+  <p class="well">
+    Note: To use the rest API, you must log in through the web interface at least once
+  </p>
+
+  <h3>Test Case API: {% url rest_testcase %}</h3>
+
+  <h4>GET Request</h4>
+  <p>Get JSON representation of a test case.</p>
+  <p><b>Example usage with id being 1:</b></p>
+  <code>curl http://host:port{% url rest_testcase 1 %}</code>
+
+  <hr>
+
+  <h4>POST Request</h4>
+  <p>Create a new Test Case by POSTing JSON.</p>
+  <pre>
+        INPUT:
+        A JSON array of TestCase objects to add.
+        EXAMPLE: will add 2 test cases, one complete and one minimal:
+        [
+          {
+            "name": "A new Test Case! string <= 255 chars",
+            "description": "An awesome new Test Case",
+            "author": "someuser", # the username of the testcase author
+            "enabled": false, // optional, boolean, default true
+            "is_automated": false, // optional, boolean, default false
+            "folder_id": 2, // ID of folder the TestCase belongs in
+            "added_version": "string <= 100 chars", // optional
+            "deprecated_version": "string <= 100 chars", // optional
+            "bug_id": "string <= 100 chars", // optional
+            "language": "J", // optional, P for Python (default) or J for Java
+            "test_script_file": "/some/path/to/script.sh", // optional, <= 1000 chars
+            "method_name": "MethodUnderTest", // optional, <= 255 chars
+            "import_id": 42, // optional, ID for the item in external DB
+            "creation_date": "2013-01-15T12:00:00", // optional, defaults to 'now'
+            "priority": "P2", // optional, <= 10 chars
+            "product": "Purchase", // optional, <= 20 chars
+            "case_type": "Regression", // optional, <= 30 chars, default is 'Regression'
+            "testplan_ids": [1,2,3], // optional, array of IDs of testplans this case is in
+            "design_steps": // optional, array of design steps for test case
+              [
+                {
+                  "step_number": 1,
+                  "procedure": "Ask for the meaning of life",
+                  "expected": "Get answer 42",
+                  "comments": "But now we need the question", // optional
+                  "import_id": 42 // optional
+                },
+                {
+                  "step_number": 2,
+                  "procedure": "Ask for the question of life",
+                  "expected": "Get 'Thanks for all the fish'",
+                }
+              ]
+          },
+          {
+            "name": "A minimal Test Case!",
+            "description": "A very merry Test Case",
+            "author": "someuser",
+            "folder_id": 2
+          }
+        ]
+        OUTPUT:
+        An array of strings, one per input object. 
+        Each item is either the new testcase_id or an error message.
+        The indices of the output array will match those of the input array.
+        A sample response from an input array of length 7, showing 6 successes and 1 error:
+        ["1","2","3","FAIL: 'name' must be provided","4","5","6"]</pre>
+  <p><b>Example Usage with curl (with above JSON in file new_testcase.json):</b></p>
+  <p><code>curl -d @new_testcase.json http://host:port{% url rest_testcase %}</code></p>
+
+  <hr>
+
+  <h3>Test Plan API: {% url rest_testplan %}</h3>
+
+  <h4>GET Request</h4>
+  <p>Get JSON representation of a test plan.</p>
+  <p><b>Example usage with name being 'A Unique Name':</b></p>
+  <code>curl http://host:port{% url rest_testplan 'A Unique Name' %}</code>
+
+  <h4>POST Request</h4>
+  <p>Create a new Test Plan.</p>
+  <pre>
+        INPUT:
+        A JSON array of TestPlan objects to add. Only name and start_date are required.
+        EXAMPLE: will add 2 test plans, one complete and one minimal:
+        [
+          {
+            "name": "A new Test Plan! string <= 255 chars",
+            "creator": "someuser", # the username of the plan creator
+            "start_date": "2013-01-15",
+            "end_date": "2013-02-15", // optional
+            "enabled": false, // optional, boolean, default true
+            "schedule": "string <= 20 chars", // optional
+            "release": "string <= 50 chars", // optional
+            "leader": "string <= 300 chars" // optional
+            "testcase_ids": [1,2,3,4,5], // optional, list of existing TC IDs
+          },
+          {
+            "name": "Another new Test Plan! string <= 255 chars",
+            "start_date": "2012-01-01",
+            "creator": "someuser"
+          }
+        ]
+        OUTPUT:
+        An array of strings, one per input object. 
+        Each item is either the new testplan_id or an error message.
+        The indices of the output array will match those of the input array.
+        A sample response from an input array of length 7, showing 6 successes and 1 error:
+        ["1","2","3","FAIL: 'name' must be provided","4","5","6"]</pre>
+  <p><b>Example Usage with curl (with above JSON in file new_testplan.json):</b></p>
+  <p><code>curl -d @new_testplan.json http://host:port{% url rest_testplan %}</code></p>
+
+  <hr>
+    <hr>
+
+  <h3>Add Test Cases to an Existing Test Plan API: {% url rest_add_tc_to_existing_tp %}</h3>
+
+  <h4>POST Request</h4>
+  <p>Add Test Cases to Test Plan.</p>
+  <pre>
+        
+        INPUT:
+        A JSON dictionary containing TestPlan ID and array of TestCase IDs to be added to the TestPlan.
+        EXAMPLE: will add two TestCases to the TestPlan:
+        {   
+          "testplan_id": 76,
+          "testcase_list": [52502,52580]
+        } 
+  </pre>
+  <p><b>Example Usage with curl (with above JSON in file testcases.json):</b></p>
+  <p><code>curl -d @new_testplan.json http://host:port{% url rest_add_tc_to_existing_tp %}</code></p>
+
+  <h3>Result API: {% url rest_result %}</h3>
+
+    <h4>GET Request</h4>
+    <p>Get the data of a result as JSON data. The data will be an array of JSON objects, with each JSON object corresponding to a single result </p>
+    <br/>
+    <h5>Parameters (must provide one or both)</h5>
+    <ul>
+        <li>testplan_name - test plan name</li>
+        <li>testcase_id or testcase_name - test case id or name</li>
+    </ul>
+    <p><b>Examples:</b></p>
+    <pre>
+        curl http://host:port{% url rest_result %}/?testcase_id=1
+        curl http://host:port{% url rest_result %}/?testcase_name=A%20Unique%20Name
+        curl http://host:port{% url rest_result %}/?testplan_name=A%20Unique%20Name</pre>
+    <hr>
+
+  <h4>POST Request</h4>
+  <p>Add a test execution result to a test case and plan.</p>
+  <h5>Parameters </h5>
+  <ul>
+    <li>testplan_name - test plan name</li>
+    <li>testcase_id or testcase_name - test case id or name</li>
+    <li>result - result status, one of: "failed","passed","na","blocked","future","notcomplet"</li>
+    <li>username - the username of the result creator</li>
+    <li>ninja_id - A ninja ID (optional)</li>
+    <li>comments - Comments and Notes (optional)</li>
+  </ul>
+  <p><b>Examples:</b></p>
+  <pre>
+    curl -d "testplan_name=SOME_PLAN&testcase_id=1&result=passed&username=someuser&ninja_id=coolID&comments=SOME_COMMENTS" http://host:port{% url rest_result %}
+    curl -d "testplan_name=SOME_PLAN&testcase_name=SOME_CASE&result=failed&username=someuser&ninja_id=coolID&comments=SOME_COMMENTS" http://host:port{% url rest_result %}</pre>
+  <hr>
+
+  <h4>POST with Python</h4>
+  <p>You can also use our Python example script to post test results.<br> This script simply uses the API above to POST results.  </p>
+  <ul>
+    <li>
+    <p>Download: <a href="/static/scripts/InputTestResultsInEC.py">InputTestResultsInEC.py</a></p>
+    </li>
+    <li>
+    <p>Have a JSON file with the parameters mentioned above. An example JSON file can look like:</p>
+    <pre>
+    [
+        {
+            "testcase_id": 1,
+            "testplan_name": "SOME_PLAN_NAME",
+            "result": "passed",
+            "username": "someuser",
+            "ninja_id": "hello"
+        },
+        {
+            "testcase_name": "UNIQUE_CASE_NAME",
+            "testplan_name": "OTHER_PLAN_NAME",
+            "result": "failed",
+            "username": "someuser"
+        }
+    ]</pre>
+    </li>
+    <li>
+        <p>Run the following code while in the correct directory</p>
+        <code>python InputTestResultsInEC.py TestResults1.json server_hostname{% url rest_result %}</code>
+    </li>
+    <li>
+        <p>A log file will be created upon execution, describing which results were input successfully</p>
+    </li>
+    </ul>
+  <h3>Find TestCase by Folder API: {% url rest_find_tests_by_folder %}</h3>
+  <h4>GET Request</h4>
+  <p>Get JSON representation of test case IDs in a folder.</p>
+  <p><b>Example usage with id being 1:</b></p>
+  <code>curl http://host:port{% url rest_find_tests_by_folder 1 %}</code>
+
+  <hr>
+</div>
+
+{% endblock %}
