@@ -7,10 +7,10 @@ Extenion Cord is a web application for managing test cases and planning QA work.
 Python/Django/Javascript/jQuery/Mysql
 
 # Installation
-* `mysql < make_initial_db.sql`
-* `pip install -r requirements.txt`
 * `sudo apt-get install mysql-server mysql-common mysql-client git-core python-pip python-setuptools`
 * For prod also run `sudo apt-get install apache2 libapache2-mod-wsgi`
+* `mysql < make_initial_db.sql`
+* `pip install -r requirements.txt`
 * Update your extension_cord/settings.py to include your bug tracker URL, or
   add it to extension_cord/local_settings.py
 * Create an extension_cord/ldap_groups/settings.py based on
