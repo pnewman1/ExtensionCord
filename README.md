@@ -1,6 +1,6 @@
 # What is Extension Cord?
 
-Extenion Cord is a web application for managing test cases and planning QA work. It is aimed at the software QA community.
+Extension Cord is a web application for managing test cases and planning QA work. It is aimed at the software QA community.
 
 # How is it implemented?
 
