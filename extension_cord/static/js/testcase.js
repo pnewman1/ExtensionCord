@@ -68,15 +68,35 @@ var testcase = {
     enterBulk:function() {
         $("td:nth-child(1),th:nth-child(1)").show();
         $("#bulkUpdate").hide();
+        $("#bulkExit").show();
         $("#bulkNext").show();
+        $("#folder_name").text(foldertree.folderName).css("font-size", "10pt");
+        $("#folders").remove();
+        $("#testcases").css("width","auto");
         $("#bulkNext").click( function() {
             var selected=testcase.getSelected();
-            // posting test_case IDs with form POST
-            var input = $("<input>", { type: "hidden", name: "tc-ids", value: selected }); 
-            $('#bulkForm').append($(input));
-            $("#form-div").dialog({
-                modal: true,
-            });
+            if (selected.length>0)
+            {
+                // posting test_case IDs with form POST
+                var input = $("<input>", { type: "hidden", name: "tc-ids", value: selected }); 
+                $('#bulkForm').append($(input));
+                $("#form-div").dialog({
+                    width: 'auto',
+                    modal: true,
+                });
+            }
+            else
+            {
+                $("#bulk-empty-error").dialog({
+                    modal: true,
+                    resizable: false,
+                    buttons: {
+                        OK: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    },
+                });
+            }
         }); 
     },
     getSelected:function() {
@@ -101,7 +121,7 @@ var testcase = {
     bulkConfirm:function() {
     $("#dialog-confirm").dialog({
         resizable: false,
-        height:160,
+        height:'auto',
         modal: true,
         buttons: {
             "Update all items": function() {
@@ -112,7 +132,17 @@ var testcase = {
                     data: $("#bulkForm").serialize(),
                     success: function() {
                         $("#form-div").dialog("close")
-                        window.alert("Successfully Updated!")
+                        $("#dialog-success").dialog({
+                            modal: true,
+                            buttons: {
+                                "Back to Bulk Edit": function() {
+                                    $(this).dialog("close");
+                                },
+                                "Exit Bulk Edit": function() {
+                                    window.location.replace("/test_case/");
+                                }
+                            }
+                        });
                     }
                 });
                 $(this).dialog("close");
@@ -122,6 +152,30 @@ var testcase = {
             }
         }   
         });
+    },
+    changeFolder:function() {
+            foldertree.initialize();
+            var position = { my: "left", at: "center", of: window }
+            $("#change-folder-dialog").dialog({
+            height: 675,
+            width: 370,
+            position: position,
+            modal: true,
+            buttons: {
+                "Select": function() {
+                    var node = $("#root").dynatree("getActiveNode");
+                    $("#folder_name").text(node.data.title + " (after submit)").css({"font-size":"10pt", "font-style":"italic", "color":"green"});
+                    $("#id_folder").val(node.data.key);
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function() {
+            }
+        });
+
     },
     updateSearch:function() {
         if(state.search) {
@@ -276,6 +330,7 @@ var testcase = {
         $("#enterSearch").click( function(event) { event.preventDefault(); testcase.enterSearch(); } );
         $("#exitSearch").click( function(event) { event.preventDefault(); testcase.exitSearch(); } );
         $("#bulkUpdate").click( function(event) { event.preventDefault(); testcase.enterBulk(); } );
+        $("#change-folder-button").click(function(event) { event.preventDefault(); testcase.changeFolder(); });
         
         // when view disabled link is clicked, switch between displaying disabled cases
         $("#viewDisabled").click(function(event){ 
