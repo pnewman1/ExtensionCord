@@ -13,6 +13,7 @@ The following steps are to run a development instance on Ubuntu:
 * `sudo apt-get install mysql-server mysql-common mysql-client git-core python-pip python-setuptools`
 * `mysql < make_initial_db.sql`
 * `pip install -r requirements.txt`
+* Build the database. From the project's root directory, run `./manage.py syncdb` followed by `./manage.py migrate`
 * Update your extension_cord/settings.py to include your bug tracker URL (currently only Jira is supported), or
   add it to extension_cord/local_settings.py
 * Create an extension_cord/ldap_groups/settings.py based on
