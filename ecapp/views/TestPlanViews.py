@@ -29,7 +29,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from ecapp.models import Result, TestPlan, TestplanTestcaseLink, Folder
+from ecapp.models import Result, TestPlan, TestplanTestcaseLink, Folder, TestCase
 from ecapp.forms import TestPlanForm
 
 
@@ -79,6 +79,14 @@ def test_plan_archive_view(request):
 
 def _generate_test_views(request, plans):
     total_count = plans.count()
+    all_plans_count = TestPlan.objects.count()
+    all_tests_count = TestCase.objects.count()
+    
+    if (all_plans_count > 0) or (all_tests_count > 0):
+        welcome = False
+    else:
+        welcome = True
+    
     page = request.GET.get('page')
     if 'archive' in request.path:
         archive = True
@@ -111,7 +119,8 @@ def _generate_test_views(request, plans):
 
 
     response = render_to_response('test_plan_summary.html',
-                                 {'plans': plans, 'total_count': total_count,
+                                 {'plans': plans, 'total_count': total_count, 'all_plans_count': all_plans_count,
+                                 'welcome': welcome,
                                  'archive':archive,
                                  'search':search,
                                  'display':display,
