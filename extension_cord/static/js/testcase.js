@@ -33,6 +33,7 @@ var state = {
     bugid:"",
     addedversion:"",
     astype:"",
+    asfolder:"",
     asdefaultassignee:"",
     asfeature:"",
     asid:"",
@@ -153,6 +154,30 @@ var testcase = {
         }   
         });
     },
+    selectFolder:function() {
+            foldertree.initialize();
+            var position = { my: "left", at: "left", of: window }
+            $("#folders").dialog({
+                modal: true,
+                position: position,
+                height: 675,
+                width: 370,
+                title: "Select a Folder",
+                buttons: {
+                    "Select": function() {
+                        var node = $("#root").dynatree("getActiveNode");
+                        $("#folder-name").text(foldertree.folderName).css("font-size", "10pt");
+                        $("#asfolder").val(node.data.title);
+                        $( this ).dialog( "close" );
+                    },
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    }
+            },
+            close: function() {
+            }
+            });
+    },
     changeFolder:function() {
             foldertree.initialize();
             var position = { my: "left", at: "center", of: window }
@@ -207,6 +232,7 @@ var testcase = {
         $("#bugid").val(state.bugid)
         $("#addedversion").val(state.addedversion)
         $("#astype").val(state.astype)
+        $("#asfolder").val(state.asfolder)
         $("#asauto").val(state.asauto);
         $("#asstatus").val(state.asstatus);
 
@@ -237,6 +263,7 @@ var testcase = {
         state.bugid = $("#bugid").val();
         state.addedversion = $("#addedversion").val();
         state.astype = $("#astype").val();
+        state.asfolder = $("#asfolder").val();
         state.asauto = $("#asauto").val();
         state.asproduct = $("#asproduct").val();
         state.asstatus = $("#asstatus").val();
@@ -267,6 +294,7 @@ var testcase = {
         state.bugid = allVars['bugid'] || "";
         state.addedversion = allVars['addedversion'] || "";
         state.astype = allVars['astype'] || "";
+        state.asfolder = allVars['asfolder'] || "";
         state.asdefaultassignee = allVars['asdefaultassignee'] || "";
         state.asfeature = allVars['asfeature'] || "";
         state.asid = allVars['asid'] || "";
@@ -293,6 +321,7 @@ var testcase = {
         if(state.bugid.length) copystate.bugid = state.bugid;
         if(state.addedversion.length) copystate.addedversion = state.addedversion;
         if(state.astype.length) copystate.astype = state.astype;
+        if(state.asfolder.length) copystate.asfolder = state.asfolder;
         if(state.asdefaultassignee.length) copystate.asdefaultassignee = state.asdefaultassignee;
         if(state.asfeature.length) copystate.asfeature = state.asfeature;
         if(state.asstatus) { 
@@ -331,6 +360,7 @@ var testcase = {
         $("#exitSearch").click( function(event) { event.preventDefault(); testcase.exitSearch(); } );
         $("#bulkUpdate").click( function(event) { event.preventDefault(); testcase.enterBulk(); } );
         $("#change-folder-button").click(function(event) { event.preventDefault(); testcase.changeFolder(); });
+        $("#select-folder-button").click(function(event) { event.preventDefault(); testcase.selectFolder(); });
         
         // when view disabled link is clicked, switch between displaying disabled cases
         $("#viewDisabled").click(function(event){ 

@@ -152,6 +152,8 @@ var result = {
         $(".resultdetails").live("click",result.resultClickListener);
         $(".testcasemodal").live("click",result.tcModalListener); 
         $("#resultfilter").show();
+        $("#folder-label").hide();
+        $("#select-folder-button").hide();
     },
     makeRowsWithData:function (tests, status) {
         // json data passed in from server must be "eval'ed"
