@@ -35,6 +35,7 @@
       <div><button type="submit" class="btn"><i type="submit" class="icon-search"></i>&nbsp;Search</button></div>
     </form>
 </div>
+
 {%if search %}
 <div class="span12" id="content" style="width:80%;">
 {% else %}
@@ -122,7 +123,7 @@
   </div>
 
 
-
+  {% if plans and not welcome %}
   <table class="table table-striped tablesorter" id="activeTable">
     <thead>
       <tr>
@@ -155,8 +156,21 @@
       {% endfor %}
     </tbody>
   </table>
+  {% elif welcome and not plans %}
+  
+    <div class="alert alert-info"><h4>Welecome to Extension Cord!</h4>Thank you for using Extension Cord!<br /> 
+    Get started by adding a <a href="/create_test_case/?folder_id=-100">test case</a> or a <a href="/create_test_plan/">test plan</a>.<br />
+    For help, check out the <a href="/help">help content</a> or the <a href="https://github.com/DeemOpen/ExtensionCord/wiki">project wiki</a>.</div>
+      
+  {% elif not plans and not welcome %}
+    
+     <div class="alert alert-info"><h4>No Active Testplans</h4>There are no current testplans. To create a new test plan, click <a href="/create_test_plan/">here</a>.</div>
 
-{% if not archive %}
+  {% endif %}
+
+
+
+{% if not archive and all_plans_count > 0 %}
   <a href="/test_plan/archive/">View All Test Plans</a>
 {% endif%}
 
