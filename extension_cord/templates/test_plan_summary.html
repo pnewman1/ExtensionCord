@@ -24,32 +24,41 @@
 {% block sidebar %}
 {% endblock %}
 {% block content %}
-      
-<div class="leftmost" id="advancedsearch" style="display:{{ display }} float:left;">
-    <form id="planSearchForm" onsubmit="return false;">
-      <div> Name: </div><div><input type="text" name="asname" id="asname" class="input-medium"></div>
-      <div> ID: </div><div><input type="text" name="asid" id="asid" class="input-medium"></div>
-      <div> Release: </div><div><input type="text" name="asrelease" id="asrelease" class="input-medium"></div>
-      <div> Leader: </div><div><input type="text" name="asleader" id="asleader" class="input-medium"></div>
-      <br/>
-      <div><button type="submit" class="btn"><i type="submit" class="icon-search"></i>&nbsp;Search</button></div>
-    </form>
-</div>
+
 
 {%if search %}
-<div class="span12" id="content" style="width:80%;">
+<div class="container-fluid" id="content">
+
+<div class="row-fluid">
+<div class="span2">
+  <div class="leftmost" id="advancedsearch" style="display:{{ display }} float:left;">
+      <form id="planSearchForm" onsubmit="return false;">
+        <div> Name: </div><div><input type="text" name="asname" id="asname" class="input-medium"></div>
+        <div> ID: </div><div><input type="text" name="asid" id="asid" class="input-medium"></div>
+        <div> Release: </div><div><input type="text" name="asrelease" id="asrelease" class="input-medium"></div>
+        <div> Leader: </div><div><input type="text" name="asleader" id="asleader" class="input-medium"></div>
+        <br/>
+        <div><button type="submit" class="btn"><i type="submit" class="icon-search"></i>&nbsp;Search</button></div>
+      </form>
+  </div>
+</div>
+
+
+<div class="span10">
+
 {% else %}
-<div class="span12" id="content">
+<div class="container" id="content">
 {% endif %}
+
   <div class="row-fluid">
-    <div class="span3">
-    {% if archive %}
-      <h1 class="pull-left">All Plans</h1>
-    {% else %}
-      <h1 class="pull-left">Active Plans</h1>
-    {% endif %}
-    </div>
-    <div class="span2 offset3">
+   <div class="span3">
+     {% if archive %}
+        <h1 class="pull-left">All Plans</h1>
+     {% else %}
+       <h1 class="pull-left">Active Plans</h1>
+     {% endif %}
+   </div>
+    <div class="span5">
       <div class="btn-groups">
         <a href="{% url plan_create %}" class="btn btn-mini pull-left">Add Plan</a>
         {% if archive %}
@@ -67,6 +76,7 @@
         <!-- <a id="button-delete" href="#" class="btn pull-left">- Folder</a> -->
       </div>
     </div>
+
 
     <div class="span4">
       {% block ajaxPagination %}
@@ -122,7 +132,6 @@
     </div>
   </div>
 
-
   {% if plans and not welcome %}
   <table class="table table-striped tablesorter" id="activeTable">
     <thead>
@@ -167,6 +176,10 @@
      <div class="alert alert-info"><h4>No Active Testplans</h4>There are no current testplans. To create a new test plan, click <a href="/create_test_plan/">here</a>.</div>
 
   {% endif %}
+
+{%if search %}
+ </div></div>
+{%endif%}
 
 
 
