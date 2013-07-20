@@ -2,6 +2,8 @@
 
 Extension Cord is a web application for managing test cases and planning QA work. It is aimed at the software QA community.
 
+For more take a look at the Extension Cord wiki: https://github.com/DeemOpen/ExtensionCord/wiki
+
 # How is it implemented?
 
 Python/Django/Javascript/jQuery/Mysql
@@ -21,7 +23,7 @@ The following steps are to run a development instance on Ubuntu:
 * To collect static data run `./manage.py collectstatic`
 * Run `./manage.py runserver` to test locally
 
-To run a live version on Apache:
+To run a live version on Apache (again these steps are for Ubuntu):
 
 * Complete all the steps listed above in the development section
 * Install wsgi: `sudo apt-get install apache2 libapache2-mod-wsgi`

@@ -4,4 +4,9 @@ NameVirtualHost *:80
         DocumentRoot /var/www/extension_cord
         Alias /static/ /var/www/extension_cord/extension_cord/static/
         WSGIScriptAlias / /var/www/extension_cord/bin/django.wsgi
+
+        <Directory /var/www/html/extension_cord/static/>
+            Allow from all
+            SetHandler None
+        </Directory>
 </VirtualHost>
