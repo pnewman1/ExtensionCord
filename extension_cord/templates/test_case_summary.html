@@ -33,11 +33,13 @@
 
 <div id="testcases" class="span9">
   {% block contenttitle %}
+
   
   <div class="row-fluid">
     <div class="span5">
       <h6 class="testcase-list-title">Root</h6>
     </div>
+
     <div class="span4">
       <div class="btn-groups">
         <a href="#" id="create-testcase" class="btn btn-mini" onclick="testcase.submitTestCase();return false;">Add Test</a>
@@ -52,6 +54,8 @@
     </div>
   </div>
 {% endblock %}
+
+{% if not welcome %}
 
   <div class="row-fluid">
     <table class="table table-striped tablesorter" id="id_table">
@@ -78,6 +82,14 @@
     </table>
   </div>
 </div>
+
+{% else %}
+  <div class="alert alert-info"><h4>Getting Started</h4>Thanks again for using Extension Cord!<br />
+  To add your first test case, click <a href="/create_test_case/?folder_id=-100">here</a>, or the Add Test Case button up at the top of this page.
+  </div>
+
+{% endif %}
+
 <div class="span4">
         <a href="#" id="bulkNext" class="btn btn-mini" style="display:none;">Next</a>
 </div>

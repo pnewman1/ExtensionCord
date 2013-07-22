@@ -61,6 +61,11 @@ def generate_folder_path(folder_id):
 
 def test_case_summary_view(request):
     """ A view for listing the root cases in the database"""
+    if TestCase.objects.count() == 0:
+        welcome = True
+    else:
+        welcome = False
+
     root = Folder.objects.get(name="root")
     #GET ONLY ENABLED CASES. DISABLED CASES CAN BE REQUESTED THROUGH AJAX REQUEST
     tests = TestCase.objects.filter(enabled=True).order_by('id')
@@ -71,6 +76,7 @@ def test_case_summary_view(request):
     return render_to_response('test_case_summary.html',
                               {'tests': tests,
                                'bulk_form': bulk_form,
+                               'welcome': welcome,
                                'teams': json.dumps(Folder.get_root_folder().child_nodes())
                                },
                               context_instance=RequestContext(request))
