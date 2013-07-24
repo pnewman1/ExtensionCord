@@ -21,7 +21,12 @@ import logging
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(SITE_ROOT)
-from ldap_groups.settings import *
+try: 
+    from ldap_groups.settings import *
+    LDAP = True
+except ImportError:
+    LDAP = False
+
 # Django settings for Extension Cord project.
 
 DEBUG = True
@@ -196,10 +201,15 @@ else:
         filemode='a'
     )
 
-AUTHENTICATION_BACKENDS = (
-    'ldap_groups.accounts.backends.ActiveDirectoryGroupMembershipSSLBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
+if LDAP == True:
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+        'ldap_groups.accounts.backends.ActiveDirectoryGroupMembershipSSLBackend',
+    )
+else:
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
