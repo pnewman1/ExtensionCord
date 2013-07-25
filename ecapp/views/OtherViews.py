@@ -26,6 +26,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 
+from pytz import timezone
+
 import json
 from exceptions import ValueError
 
@@ -251,7 +253,9 @@ def get_status(testplan_id, testcase_id):
                                     testplan_testcase_link__testcase_id=testcase_id,
                                     latest=True)
 
-        status_return = {"timestamp": str(result.timestamp), "bug_id": result.bug_ticket, "note": result.note}
+        settings_time_zone = timezone(settings.TIME_ZONE)
+        updated_timestamp = result.timestamp.astimezone(settings_time_zone)
+        status_return = {"timestamp": str(updated_timestamp), "bug_id": result.bug_ticket, "note": result.note}
         
         if result.status == 'passed':
             status_return["type"] = "badge-success"
