@@ -20,10 +20,12 @@ import logging
 from django.shortcuts import redirect
 from django.contrib.auth import logout
 from django.shortcuts import render_to_response
+from django.conf import settings
+from django.template import RequestContext
 
 def logout_page(request):
     log = logging.getLogger('actions_log')
     if str(request.user) != 'AnonymousUser':
         log.info("%s logged out" % request.user)
     logout(request)
-    return render_to_response('registration/logout.html')
+    return render_to_response('registration/logout.html', context_instance=RequestContext(request))
