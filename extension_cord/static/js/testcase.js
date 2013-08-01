@@ -72,7 +72,7 @@ var testcase = {
         $("#bulkExit").show();
         $("#bulkNext").show();
         $("#folder_name").text(foldertree.folderName).css("font-size", "10pt");
-        $("#folders").remove();
+        $("#folders").hide();
         $("#testcases").css("width","auto");
         $("#bulkNext").click( function() {
             var selected=testcase.getSelected();
@@ -154,43 +154,29 @@ var testcase = {
         }   
         });
     },
-    selectFolder:function() {
-            foldertree.initialize();
-            var position = { my: "left", at: "left", of: window }
-            $("#folders").dialog({
-                modal: true,
-                position: position,
-                height: 675,
-                width: 370,
-                title: "Select a Folder",
-                buttons: {
-                    "Select": function() {
-                        var node = $("#root").dynatree("getActiveNode");
-                        $("#folder-name").text(foldertree.folderName).css("font-size", "10pt");
-                        $("#asfolder").val(node.data.title);
-                        $( this ).dialog( "close" );
-                    },
-                    Cancel: function() {
-                        $( this ).dialog( "close" );
-                    }
-            },
-            close: function() {
-            }
-            });
-    },
-    changeFolder:function() {
-            foldertree.initialize();
-            var position = { my: "left", at: "center", of: window }
-            $("#change-folder-dialog").dialog({
+    foldertreeModal:function(title,position,select) {
+        $("#root").dynatree("destroy");
+        $("#root").empty();
+        foldertree.initialize();
+        $("#folders").dialog({
+            modal: true,
+            position: position,
+            title: title,
             height: 675,
             width: 370,
-            position: position,
-            modal: true,
             buttons: {
                 "Select": function() {
                     var node = $("#root").dynatree("getActiveNode");
-                    $("#folder_name").text(node.data.title + " (after submit)").css({"font-size":"10pt", "font-style":"italic", "color":"green"});
-                    $("#id_folder").val(node.data.key);
+                    if (select) 
+                    {
+                        $("#folder-name").text(foldertree.folderName).css("font-size", "10pt");
+                        $("#asfolder").val(node.data.title);
+                    }
+                    else
+                    {
+                        $("#folder_name").text(node.data.title + " (after submit)").css({"font-size":"10pt", "font-style":"italic", "color":"green"});
+                        $("#id_folder").val(node.data.key);
+                    }
                     $( this ).dialog( "close" );
                 },
                 Cancel: function() {
@@ -199,8 +185,19 @@ var testcase = {
             },
             close: function() {
             }
-        });
-
+            });
+    },
+    selectFolder:function() {
+        var position = { my: "left", at: "left", of: window };
+        var title = "Select a Folder";
+        var select = true;
+        testcase.foldertreeModal(title,position,select);
+    },
+    changeFolder:function() {
+        var position = { my: "left", at: "center", of: window }
+        var title = "Change Folder";
+        var select = false;
+        testcase.foldertreeModal(title,position,select);
     },
     updateSearch:function() {
         if(state.search) {
