@@ -18,6 +18,20 @@
 var testcase_summary = {    
     renderTestsTable:function (data){
         testcase_summary.makeRowsWithData(data['tests']);
+
+        // Hide "Bulk Update" button when there are no tastacses in selected folder
+        if (data['total_count'] == 0) 
+        {
+            $("#bulkUpdate").hide();
+            $("#id_table").hide();
+            $("#no-testcase-message").show();
+        }
+        else
+        {
+            $("#bulkUpdate").show();
+            $("#id_table").show();
+            $("#no-testcase-message").hide();
+        }
         common.updatePaginate(data);
     },
     makeRowsWithData:function (testcases) {  
