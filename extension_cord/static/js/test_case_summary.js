@@ -32,6 +32,15 @@ var testcase_summary = {
             $("#id_table").show();
             $("#no-testcase-message").hide();
         }
+
+        // Sort Table
+        $("#id_table").tablesorter({
+            headers: {
+                0: { sorter: false }
+            }
+        }); 
+        $("#id_table td:nth-child(1),th:nth-child(1)").hide();
+
         common.updatePaginate(data);
     },
     makeRowsWithData:function (testcases) {  
@@ -64,18 +73,11 @@ var testcase_summary = {
 
             $('#id_table > tbody:last').append(newRow);
 
+            // To avoid duplicated rows caused by tablesorter
+            $('.tablesorter').trigger('update');
+
             common.addDescShowHideHandlers(tcPk, desc);
         }
-        $(document).ready(function() 
-           { 
-              $("#id_table").tablesorter({
-                headers: {
-                    0: { sorter: false }
-                }
-              }); 
-              $("#id_table td:nth-child(1),th:nth-child(1)").hide();
-           } 
-        ); 
     },
     stateChangeCallback:function () {
         var State = History.getState();
