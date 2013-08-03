@@ -33,6 +33,7 @@ var state = {
     bugid:"",
     addedversion:"",
     astype:"",
+    asfolder:"",
     asdefaultassignee:"",
     asfeature:"",
     asid:"",
@@ -68,15 +69,35 @@ var testcase = {
     enterBulk:function() {
         $("td:nth-child(1),th:nth-child(1)").show();
         $("#bulkUpdate").hide();
+        $("#bulkExit").show();
         $("#bulkNext").show();
+        $("#folder_name").text(foldertree.folderName).css("font-size", "10pt");
+        $("#folders").hide();
+        $("#testcases").css("width","auto");
         $("#bulkNext").click( function() {
             var selected=testcase.getSelected();
-            // posting test_case IDs with form POST
-            var input = $("<input>", { type: "hidden", name: "tc-ids", value: selected }); 
-            $('#bulkForm').append($(input));
-            $("#form-div").dialog({
-                modal: true,
-            });
+            if (selected.length>0)
+            {
+                // posting test_case IDs with form POST
+                var input = $("<input>", { type: "hidden", name: "tc-ids", value: selected }); 
+                $('#bulkForm').append($(input));
+                $("#form-div").dialog({
+                    width: 'auto',
+                    modal: true,
+                });
+            }
+            else
+            {
+                $("#bulk-empty-error").dialog({
+                    modal: true,
+                    resizable: false,
+                    buttons: {
+                        OK: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    },
+                });
+            }
         }); 
     },
     getSelected:function() {
@@ -101,7 +122,7 @@ var testcase = {
     bulkConfirm:function() {
     $("#dialog-confirm").dialog({
         resizable: false,
-        height:160,
+        height:'auto',
         modal: true,
         buttons: {
             "Update all items": function() {
@@ -112,7 +133,17 @@ var testcase = {
                     data: $("#bulkForm").serialize(),
                     success: function() {
                         $("#form-div").dialog("close")
-                        window.alert("Successfully Updated!")
+                        $("#dialog-success").dialog({
+                            modal: true,
+                            buttons: {
+                                "Back to Bulk Edit": function() {
+                                    $(this).dialog("close");
+                                },
+                                "Exit Bulk Edit": function() {
+                                    window.location.replace("/test_case/");
+                                }
+                            }
+                        });
                     }
                 });
                 $(this).dialog("close");
@@ -122,6 +153,51 @@ var testcase = {
             }
         }   
         });
+    },
+    foldertreeModal:function(title,position,select) {
+        $("#root").dynatree("destroy");
+        $("#root").empty();
+        foldertree.initialize();
+        $("#folders").dialog({
+            modal: true,
+            position: position,
+            title: title,
+            height: 675,
+            width: 370,
+            buttons: {
+                "Select": function() {
+                    var node = $("#root").dynatree("getActiveNode");
+                    if (select) 
+                    {
+                        $("#folder-name").text(foldertree.folderName).css("font-size", "10pt");
+                        $("#asfolder").val(node.data.title);
+                    }
+                    else
+                    {
+                        $("#folder_name").text(node.data.title + " (after submit)").css({"font-size":"10pt", "font-style":"italic", "color":"green"});
+                        $("#id_folder").val(node.data.key);
+                    }
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function() {
+            }
+            });
+    },
+    selectFolder:function() {
+        var position = { my: "left", at: "left", of: window };
+        var title = "Select a Folder";
+        var select = true;
+        testcase.foldertreeModal(title,position,select);
+    },
+    changeFolder:function() {
+        var position = { my: "left", at: "center", of: window }
+        var title = "Change Folder";
+        var select = false;
+        testcase.foldertreeModal(title,position,select);
     },
     updateSearch:function() {
         if(state.search) {
@@ -153,6 +229,7 @@ var testcase = {
         $("#bugid").val(state.bugid)
         $("#addedversion").val(state.addedversion)
         $("#astype").val(state.astype)
+        $("#asfolder").val(state.asfolder)
         $("#asauto").val(state.asauto);
         $("#asstatus").val(state.asstatus);
 
@@ -183,6 +260,7 @@ var testcase = {
         state.bugid = $("#bugid").val();
         state.addedversion = $("#addedversion").val();
         state.astype = $("#astype").val();
+        state.asfolder = $("#asfolder").val();
         state.asauto = $("#asauto").val();
         state.asproduct = $("#asproduct").val();
         state.asstatus = $("#asstatus").val();
@@ -213,6 +291,7 @@ var testcase = {
         state.bugid = allVars['bugid'] || "";
         state.addedversion = allVars['addedversion'] || "";
         state.astype = allVars['astype'] || "";
+        state.asfolder = allVars['asfolder'] || "";
         state.asdefaultassignee = allVars['asdefaultassignee'] || "";
         state.asfeature = allVars['asfeature'] || "";
         state.asid = allVars['asid'] || "";
@@ -239,6 +318,7 @@ var testcase = {
         if(state.bugid.length) copystate.bugid = state.bugid;
         if(state.addedversion.length) copystate.addedversion = state.addedversion;
         if(state.astype.length) copystate.astype = state.astype;
+        if(state.asfolder.length) copystate.asfolder = state.asfolder;
         if(state.asdefaultassignee.length) copystate.asdefaultassignee = state.asdefaultassignee;
         if(state.asfeature.length) copystate.asfeature = state.asfeature;
         if(state.asstatus) { 
@@ -276,6 +356,8 @@ var testcase = {
         $("#enterSearch").click( function(event) { event.preventDefault(); testcase.enterSearch(); } );
         $("#exitSearch").click( function(event) { event.preventDefault(); testcase.exitSearch(); } );
         $("#bulkUpdate").click( function(event) { event.preventDefault(); testcase.enterBulk(); } );
+        $("#change-folder-button").click(function(event) { event.preventDefault(); testcase.changeFolder(); });
+        $("#select-folder-button").click(function(event) { event.preventDefault(); testcase.selectFolder(); });
         
         // when view disabled link is clicked, switch between displaying disabled cases
         $("#viewDisabled").click(function(event){ 

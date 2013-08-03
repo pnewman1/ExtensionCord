@@ -47,6 +47,7 @@
         <a href="#" id="exitSearch" class="btn btn-mini" style="display:none;">Exit Search</a>
         <a href="#" id="enterSearch" class="btn btn-mini">Search</a>
         <a href="#" id="bulkUpdate" class="btn btn-mini">Bulk Edit</a>
+        <a href="/test_case/" id="bulkExit" class="btn btn-mini" style="display:none;">Exit Bulk</a>
     </div>
     </div>
     <div class="span3">
@@ -58,6 +59,10 @@
 {% if not welcome %}
 
   <div class="row-fluid">
+    <div id="no-testcase-message" class="alert alert-info">
+        <h4>No Testcases</h4>
+        <p>There are no tests in this folder.</p>
+    </div>
     <table class="table table-striped tablesorter" id="id_table">
       <thead>
       <tr>
@@ -80,6 +85,7 @@
       <tbody>
       </tbody>
     </table>
+        <a href="#" id="bulkNext" class="btn" style="display:none;">Update</a>
   </div>
 </div>
 
@@ -90,19 +96,41 @@
 
 {% endif %}
 
-<div class="span4">
-        <a href="#" id="bulkNext" class="btn btn-mini" style="display:none;">Next</a>
-</div>
-<div id="form-div" style="display: none;">
+<div id="form-div" title="Bulk Edit" style="display: none;">
 <form action= {% url case_bulk %}  method="post" id="bulkForm">
-{{ bulk_form }}
+{% for field in bulk_form %}
+    {% if field.html_name == "folder" %}
+        <label class="control-label" id="{{ field.html_name }}"><span id="label_{{field.html_name}}">{{ field.label }}</span>:
+        </label>
+        {{ field.error }}
+        <div class="controld">
+        <span id="folder_name">
+        </span>
+        <input type="hidden" name="folder" id="id_folder"/>
+        <a id="change-folder-button" href="#" class="btn btn-mini" style="float: right;">Change Folder</a>
+        <br>
+        <br>
+    {% else  %}
+        <label class="control-label" id="{{ field.html_name }}"><span id="label_{{field.html_name}}">{{ field.label }}</span>:
+        </label>
+        {{ field.error }}
+        <div class="controld">
+        {{ field }}
+    {% endif %}
+{% endfor %}
 <br>
 <br>
 <input type="submit" value="Next" name="bulkNext" onclick="testcase.bulkConfirm();return false;" />
 </form>
 </div>
 <div id="dialog-confirm" title="Confirm Bulk Update" style="display: none;">
-  <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>These items will be permanently chenged. Are you sure?</p>
+  <p><span class="ui-icon ui-icon-alert" style="float: left;"></span>These items will be permanently changed. Are you sure?</p>
+</div>
+<div id="dialog-success" title="Updated" style="display: none;">
+  <p><span style="float: left;"></span>The selected test cases have been successfully updated.</p>
+</div>
+<div id="bulk-empty-error" title="Error!" style="display: none;">
+  <p><span class="ui-icon ui-icon-alert" style="float: left;"></span>You need to select at least one test case to update.</p>
 </div>
 {% endblock %}
 

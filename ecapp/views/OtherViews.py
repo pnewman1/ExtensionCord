@@ -337,6 +337,8 @@ def ajax_tests(request):
             tests = tests.filter( Q(default_assignee__username__icontains=request.GET['asdefaultassignee']))
         if request.GET.get('asfeature'):
             tests = tests.filter(feature__icontains=request.GET['asfeature'])
+        if request.GET.get('asfolder'):
+            tests = tests.filter(folder__name__icontains=request.GET['asfolder'])
         if request.GET.get('asauto') == "auto":
                 tests = tests.filter(is_automated=True)
         if request.GET.get('asauto') == "noauto":
