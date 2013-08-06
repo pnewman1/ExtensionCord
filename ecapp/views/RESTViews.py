@@ -227,7 +227,7 @@ def _add_one_testcase(data):
                 case.folder = folder
                 case.folder_path=data['folder_path']
         else:
-            return 'FAIL: "folder_id" or "folder_path must be provided'
+            return 'FAIL: "folder_id" or "folder_path" must be provided'
             
 
         if 'enabled' in data:
