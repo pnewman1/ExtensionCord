@@ -181,7 +181,8 @@ def rest_add_tc_to_existing_tp(request):
 
 def _folderpath_to_folderid(folder_path):
     folder_path_list = folder_path.strip().strip("/").split("/")
-    parent_id = 1
+    root = Folder.objects.get(name="root")
+    parent_id = root.id
     for folder_name in folder_path_list:
         try:
             folder = Folder.objects.get(name=folder_name, parent_id=parent_id)
