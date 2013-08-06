@@ -179,6 +179,17 @@ def rest_add_tc_to_existing_tp(request):
     else:
         return HttpResponse( simplejson.dumps( {'message': 'FAIL: POST required.'} ) )
 
+def _folderpath_to_folderid(folder_path):
+    folder_path_list = folder_path.strip().strip("/").split("/")
+    parent_id = 1
+    for folder_name in folder_path_list:
+        try:
+            folder = Folder.objects.get(name=folder_name, parent_id=parent_id)
+            folder_id = folder.id
+            parent_id = folder.id
+        except Folder.DoesNotExist:
+            folder_id = 0
+    return folder_id
 
 def _add_one_testcase(data):
     try:
@@ -206,9 +217,18 @@ def _add_one_testcase(data):
             folder = Folder.objects.get(pk=data['folder_id'])
             case.folder = folder
             case.folder_path = folder.folder_path()
+        elif 'folder_path' in data:
+            folder_id = _folderpath_to_folderid(data['folder_path'])
+            if folder_id == 0:
+                return 'FAIL: The provided path does not exist'
+            else:
+                folder = Folder.objects.get(pk=folder_id)
+                case.folder = folder
+                case.folder_path=data['folder_path']
         else:
-            return 'FAIL: "folder_id" must be provided'
+            return 'FAIL: "folder_id" or "folder_path must be provided'
             
+
         if 'enabled' in data:
             case.enabled = data['enabled']
         if 'is_automated' in data:
