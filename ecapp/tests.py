@@ -153,10 +153,32 @@ class TestPlanViewsTest(TestCase):
 class RESTViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
+        sample_folder_in_root = ecapp.models.Folder.objects.create(name='folder_in_root', parent_id=1)
+        sample_sub_folder = ecapp.models.Folder.objects.create(name='sub_folder', parent_id=sample_folder_in_root.id)
+        sample_sub_sub_folder = ecapp.models.Folder.objects.create(name='sub_sub_folder', parent_id=sample_sub_folder.id)
+        test_in_sub_folder = ecapp.models.Folder.objects.create(name='test', parent_id=sample_sub_folder.id)
+        test_in_sub_sub_folder = ecapp.models.Folder.objects.create(name='test', parent_id=sample_sub_sub_folder.id)
 
     def test_restAPI(self): 
         response = self.client.get('/api/')
         self.assertEqual(response.status_code, 200)
+
+    def test__folderpath_to_folderid(self):
+
+        # Test the folder path 
+        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root"), 3)
+        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder"), 4)
+        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/sub_sub_folder"), 5)
+
+        # Test a folder path which is not starting from root
+        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/sub_folder"), 0)
+
+        # Test folder path which is not exsists
+        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/wrong_folder"), 0)
+
+        # Test folders with same name but diffrent places
+        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/test"), 6)
+        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/sub_sub_folder/test"), 7)
 
 class OtherViewsTest(TestCase):
     def setUp(self):
