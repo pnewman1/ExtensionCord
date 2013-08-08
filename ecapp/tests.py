@@ -37,6 +37,7 @@ class TestCaseViewsTest(TestCase):
         self.logged_in = self.client.login(username='test', password='test')
         root_folder = ecapp.models.Folder.objects.get(name='root')
         sample_folder = ecapp.models.Folder.objects.create(name='testfolder', parent=root_folder)
+        sample_sub_folder = ecapp.models.Folder.objects.create(name='subfolder', parent=sample_folder)
         sample_testcase = ecapp.models.TestCase.objects.create(name='testcase', author=self.user, folder=sample_folder)
 
     def test_test_case_summary_view(self):
@@ -79,6 +80,19 @@ class TestCaseViewsTest(TestCase):
         url = '/test_case/' + str(test_case.id) + '/modal/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_generate_folder_path(self):
+        # Testing for root
+        root_folder_id = ecapp.models.Folder.objects.get(name="root").id
+        self.assertEqual(ecapp.views.TestCaseViews.generate_folder_path(root_folder_id), "/")
+
+        # Testing for "/testfolder"
+        testfolder_folder_id = ecapp.models.Folder.objects.get(name="testfolder").id
+        self.assertEqual(ecapp.views.TestCaseViews.generate_folder_path(testfolder_folder_id), "/testfolder")
+
+        # Testing for "/testfolder/subfolder"
+        subfolder_folder_id = ecapp.models.Folder.objects.get(name="subfolder").id
+        self.assertEqual(ecapp.views.TestCaseViews.generate_folder_path(subfolder_folder_id), "/testfolder/subfolder")
 
 class TestPlanViewsTest(TestCase):
     def setUp(self):

@@ -47,15 +47,18 @@ def generate_folder_path(folder_id):
         logger.critical("DB is not configured.")
         raise
 
-    parent = folder.parent
-    folder_path = str(folder)
-    while(True):
-        if parent.name == "root":
-            break
-        folder_path = str(parent) + "/" + folder_path
-        parent = parent.parent
+    if folder.name == "root":
+        folder_path = "/"
+    else:
+        parent = folder.parent
+        folder_path = str(folder)
+        while(True):
+            if parent.name == "root":
+                break
+            folder_path = str(parent) + "/" + folder_path
+            parent = parent.parent
 
-    folder_path = "/" + folder_path
+        folder_path = "/" + folder_path
 
     return folder_path
 
