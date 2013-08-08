@@ -121,14 +121,30 @@ def test_case_edit(request, test_case_id=-1):
 
         if form.is_valid():
 
-            tc = form.save()
-            _add_steps(tc, request)
-            _add_uploads(tc, request)
-            testcase = tc
-            testcase.folder_path = generate_folder_path(request.POST['folder'])
-            testcase.updated_datetime = datetime.datetime.now(pytz.timezone('US/Pacific'))
-            testcase.updated_by = User.objects.get(username=updated_by)
-            testcase.save()
+            # prevent to create a duplicate testcase with same name in a folder.
+            if test_case_id == -1 and TestCase.objects.filter(name=form.cleaned_data['name'], folder_id=request.POST['folder']).exists():
+                message = "The testcase name %s is already exsists. Please change it and try again." % form.cleaned_data['name']
+                messages.add_message(request, messages.ERROR, message)
+                return render_to_response('test_case_form.html',
+                                        {'form': form,
+                                        'type': 'View/Edit Test Case',
+                                        'author': author,
+                                        'updated_by': updated_by,
+                                        'test_case': testcase,
+                                        'product_lookup': generate_product_lookup(),
+                                        'id': _set_tc_id(test_case_id)
+                                        },
+                                        context_instance=RequestContext(request))
+            else:    
+                tc = form.save()
+                _add_steps(tc, request)
+                _add_uploads(tc, request)
+                testcase = tc
+                testcase.folder_path = generate_folder_path(request.POST['folder'])
+                testcase.updated_datetime = datetime.datetime.now(pytz.timezone('US/Pacific'))
+                testcase.updated_by = User.objects.get(username=updated_by)
+                testcase.save()
+
             if test_case_id == -1:
                 message = "Created the testcase %s successfully" % tc.name
                 author = updated_by
