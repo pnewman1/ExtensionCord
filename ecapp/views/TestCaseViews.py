@@ -55,7 +55,7 @@ def generate_folder_path(folder_id):
         folder_path = str(parent) + "/" + folder_path
         parent = parent.parent
 
-    folder_path = "Subject/" + folder_path
+    folder_path = "/" + folder_path
 
     return folder_path
 
@@ -159,7 +159,7 @@ def test_case_edit(request, test_case_id=-1):
 
         if folder_id == "-100":
             folder = Folder.objects.get(name="root")
-            folder_path = "Subject/" + folder.name
+            folder_path = "/" + folder.name
         else:
             folder = Folder.objects.get(id=folder_id)
             folder_path = generate_folder_path(folder_id)

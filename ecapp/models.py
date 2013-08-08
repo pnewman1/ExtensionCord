@@ -45,7 +45,7 @@ class Folder(models.Model):
         if(self.parent):
             return self.parent.folder_path_raw() + "/" + str(self.name)
         else:
-            # this is the root node, folder_path for it is "Subject"
+            # this is the root node
             return ""
 
     def folder_path_display(self):
@@ -55,7 +55,7 @@ class Folder(models.Model):
         return raw[1:]
 
     def folder_path(self):
-        return "Subject" + self.folder_path_raw()
+        return self.folder_path_raw()
 
     def in_testplan(self, testplan_id):
         return TestPlan.objects.get(pk=testplan_id).testcases.filter(folder_path__startswith=self.folder_path())
