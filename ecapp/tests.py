@@ -46,8 +46,13 @@ class TestCaseViewsTest(TestCase):
 
     def test_test_case_edit(self):
         self.assertEqual(self.logged_in, True)
-        data = {'name':'test', 'description':'test'}
+        folder = ecapp.models.Folder.objects.get(name='testfolder')
+        data = {'name':'test', 'description':'test', 'folder':folder}
         # creare a new test case
+        response = self.client.post('/create_test_case/', data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        # create a test case with an existing name in same folder
+        data = {'name':'test', 'description':'test duplicated name', 'folder':folder}
         response = self.client.post('/create_test_case/', data, follow=True)
         self.assertEqual(response.status_code, 200)
         # editing an exsiting testcase
