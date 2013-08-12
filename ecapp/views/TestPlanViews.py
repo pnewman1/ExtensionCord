@@ -24,7 +24,7 @@ from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db import connection
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -41,8 +41,11 @@ def getBarData(testplan):
         annotated_status = {}
 
         folder_path_cmp_string = folder.folder_path()
-        all_latest_results = Result.objects.filter(latest=True, testplan_testcase_link__testplan=testplan, testplan_testcase_link__testcase__folder_path__startswith=folder_path_cmp_string, testplan_testcase_link__testcase__enabled=1)
-        all_tptc_links = TestplanTestcaseLink.objects.filter(testplan=testplan, testcase__folder_path__startswith=folder_path_cmp_string, testcase__enabled=1)
+        compatibility_folder_path_cmp_string = "Subject" + folder_path_cmp_string
+        all_latest_results = Result.objects.filter(latest=True, testplan_testcase_link__testplan=testplan, testplan_testcase_link__testcase__enabled=1)
+        all_latest_results = all_latest_results.filter(Q(testplan_testcase_link__testcase__folder_path__startswith=folder_path_cmp_string)|Q(testplan_testcase_link__testcase__folder_path__startswith=compatibility_folder_path_cmp_string))
+        all_tptc_links = TestplanTestcaseLink.objects.filter(testplan=testplan, testcase__enabled=1)
+        all_tptc_links = all_tptc_links.filter(Q(testcase__folder_path__startswith=folder_path_cmp_string)|Q(testcase__folder_path__startswith=compatibility_folder_path_cmp_string))
 
         if all_latest_results.exists():
             annotated_status = dict(all_latest_results.values_list('status').annotate(Count('id')))
