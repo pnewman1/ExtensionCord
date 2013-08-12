@@ -20,7 +20,7 @@ import pytz
 import logging
 
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class Folder(models.Model):
         return self.folder_path_raw()
 
     def in_testplan(self, testplan_id):
-        return TestPlan.objects.get(pk=testplan_id).testcases.filter(folder_path__startswith=self.folder_path())
+        return TestPlan.objects.get(pk=testplan_id).testcases.filter(Q(folder_path__startswith=self.folder_path())|Q(folder_path__startswith="Subject"+self.folder_path()))
 
     def child_nodes(self, testplan_id=None):
         node_list = []

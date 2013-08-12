@@ -344,7 +344,7 @@ def ajax_tests(request):
         if request.GET.get('asauto') == "noauto":
                 tests = tests.filter(is_automated=False)
         if request.GET.get('asproduct'):
-            tests = tests.filter(folder_path__startswith=request.GET['asproduct'].replace("+"," "))
+            tests = tests.filter(Q(folder_path__startswith="/"+request.GET['asproduct'].replace("+"," "))|Q(folder_path__startswith="Subject/"+request.GET['asproduct'].replace("+"," ")))
         if request.GET.get('asstatus'):
             asstatus = request.GET['asstatus'].split(',')
             tests_with_results = tests.filter(
