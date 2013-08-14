@@ -217,7 +217,6 @@ def _add_one_testcase(data):
         if 'folder_id' in data:
             folder = Folder.objects.get(pk=data['folder_id'])
             case.folder = folder
-            case.folder_path = folder.folder_path()
         elif 'folder_path' in data:
             folder_id = _folderpath_to_folderid(data['folder_path'])
             if folder_id == 0:
@@ -225,7 +224,6 @@ def _add_one_testcase(data):
             else:
                 folder = Folder.objects.get(pk=folder_id)
                 case.folder = folder
-                case.folder_path=data['folder_path']
         else:
             return 'FAIL: "folder_id" or "folder_path" must be provided'
             

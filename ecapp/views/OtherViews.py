@@ -292,6 +292,22 @@ def ajax_folders(request):
         'testplan_id': request.GET.get('testplan_id', None)
         }))
 
+def folder_and_child_folders_list(folder_id):
+    folder_and_child_folders_list = [folder_id]
+    query_list = folder_and_child_folders_list
+    has_child = True
+    while has_child:
+        if len(query_list)>0 :
+            child_folders = Folder.objects.filter(parent_id__in=query_list)
+            query_list = []
+            for item in child_folders:
+                folder_and_child_folders_list.append(item.id)
+                query_list.append(item.id)
+        else:
+            has_child = False
+    
+    return folder_and_child_folders_list
+
 def ajax_tests(request):
     enabled = True
 
@@ -344,7 +360,9 @@ def ajax_tests(request):
         if request.GET.get('asauto') == "noauto":
                 tests = tests.filter(is_automated=False)
         if request.GET.get('asproduct'):
-            tests = tests.filter(Q(folder_path__startswith="/"+request.GET['asproduct'].replace("+"," "))|Q(folder_path__startswith="Subject/"+request.GET['asproduct'].replace("+"," ")))
+            product = request.GET['asproduct'].replace("+", " ")
+            folder_id = Folder.objects.get(name=product).id
+            tests = tests.filter(folder_id__in=folder_and_child_folders_list(folder_id))
         if request.GET.get('asstatus'):
             asstatus = request.GET['asstatus'].split(',')
             tests_with_results = tests.filter(
