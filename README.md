@@ -12,7 +12,7 @@ Python/Django/Javascript/jQuery/Mysql
 
 The following steps are to run a development instance on Ubuntu:
 
-* `sudo apt-get install mysql-server mysql-common mysql-client git-core python-dev python-pip python-setuptools libmysqlclient-dev apt-get install libldap2-dev apt-get install libsasl2-dev`
+* `sudo apt-get install mysql-server mysql-common mysql-client git-core python-dev python-pip python-setuptools libmysqlclient-dev libldap2-dev libsasl2-dev`
 * `git clone https://github.com/DeemOpen/ExtensionCord.git`
 * `mysql < make_initial_db.sql`
 * `pip install -r requirements.txt`
