@@ -12,7 +12,8 @@ Python/Django/Javascript/jQuery/Mysql
 
 The following steps are to run a development instance on Ubuntu:
 
-* `sudo apt-get install mysql-server mysql-common mysql-client git-core python-pip python-setuptools`
+* `sudo apt-get install mysql-server mysql-common mysql-client git-core python-pip python-setuptools libmysqlclient-dev`
+* `git clone https://github.com/DeemOpen/ExtensionCord.git`
 * `mysql < make_initial_db.sql`
 * `pip install -r requirements.txt`
 * Build the database. From the project's root directory, run `./manage.py syncdb` followed by `./manage.py migrate`
