@@ -67,7 +67,12 @@ var testcase_summary = {
             newRow += common.getNameTD(tcPk, tcName, desc);
 
             newRow += '<td>' + t[index]['fields']['design_steps'].length + '</td>';
-            newRow += '<td>' + t[index]['fields']['priority'] + '</td>';
+            if (!(t[index]['fields']['priority'])){
+                newRow += '<td></td>';
+            }
+            else {
+                newRow += '<td>' + t[index]['fields']['priority'] + '</td>';
+            }
             newRow += '<td><a href="./' + String(tcPk) + '/result/">View</a></td>';
             newRow += '</tr>';
 
