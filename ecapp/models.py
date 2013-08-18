@@ -62,12 +62,20 @@ class Folder(models.Model):
         return self.folder_path_raw()
 
     def in_testplan(self, testplan_id):
-        testcases = TestPlan.objects.get(pk=testplan_id).testcases.all()
-        folder_id_list = []
-        for testcase in testcases:
-            folder_id_list.append(testcase.folder_id)
+        folder_and_child_folders_list = [self.id]
+        query_list = folder_and_child_folders_list
+        has_child = True
+        while has_child:
+            if len(query_list)>0 :
+                child_folders = Folder.objects.filter(parent_id__in=query_list)
+                query_list = []
+                for item in child_folders:
+                    folder_and_child_folders_list.append(item.id)
+                    query_list.append(item.id)
+            else:
+                has_child = False
 
-        return testcases.filter(folder_id__in=folder_id_list)
+        return TestPlan.objects.get(pk=testplan_id).testcases.filter(folder_id__in=folder_and_child_folders_list)
 
     def child_nodes(self, testplan_id=None):
         node_list = []
