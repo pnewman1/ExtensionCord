@@ -166,14 +166,15 @@ var result = {
                 tcName += ' (Disabled)';
             }
             var column = [];
-            column[0] = '<td><input class="checkbox uneditable-input" type="checkbox" value='+tests[index]['pk']+'></td>';
-            column[1] = '<td><center><a href="#" class="resultdetails" id='+tests[index]['pk']+'><span class="badge '+ status[tests[index]['pk']]["type"]+'">' + status[tests[index]['pk']]["message"] + '</span></a></center></td>';
-            column[2] = '<td><a href="/test_case/'+tests[index]['pk']+'">'+tests[index]['fields']['name']+'</a></td>';
-            column[3] = '<td><a href="#" class="testcasemodal" id='+tests[index]['pk']+'>Details</a></td>';
-            if (status[tests[index]['pk']]['default_assignee'] != ""){
-              column[4] = '<td>'+tests[index]['fields']['default_assignee']+'</td>';
+            column[0] = '<td width="1%"><input class="checkbox uneditable-input" type="checkbox" value='+tests[index]['pk']+'></td>';
+            column[1] = '<td width="5%"><center><a href="#" class="resultdetails" id='+tests[index]['pk']+'><span class="badge '+ status[tests[index]['pk']]["type"]+'">' + status[tests[index]['pk']]["message"] + '</span></a></center></td>';
+            column[2] = '<td width="18%"><a href="/test_case/'+tests[index]['pk']+'">'+tests[index]['fields']['name']+'</a></td>';
+            column[3] = '<td width="4%"><a href="#" class="testcasemodal" id='+tests[index]['pk']+'>Details</a></td>';
+            if (tests[index]['fields']['default_assignee']){
+              column[4] = '<td width="7%">'+tests[index]['fields']['default_assignee']+'</td>';
             } else {
-              column[4] = '<td><textarea rows="1"></textarea></td>';
+              edit_url = "/test_case/"+tests[index]['pk']+"/edit/"
+              column[4] = '<td width="7%"><a href="'+edit_url+'">Assign to</a></td>';
             }
             if (String(status[tests[index]['pk']]['bug_id']).toLowerCase() != "null" && status[tests[index]['pk']]['bug_id'] != ""){
               var bugs = status[tests[index]['pk']]['bug_id'].split(/[\s,]/);
@@ -183,16 +184,16 @@ var result = {
                   bugs_link += '<a href="'+bug_url+bugs[i]+'">' + bugs[i] + '</a><br />';
                 }
               }
-              column[5] = '<td><textarea rows="1">'+status[tests[index]['pk']]['bug_id']+'</textarea><br />'+bugs_link+'</td>';   
+              column[5] = '<td width="13%"><textarea style="width: 90%; height: 1.2em;">'+status[tests[index]['pk']]['bug_id']+'</textarea><br />'+bugs_link+'</td>';   
             } else {
-              column[5] = '<td><textarea rows="1"></textarea></td>';
+              column[5] = '<td width="13%"><textarea style="width: 90%; height: 1.2em;"></textarea></td>';
             }
             if (status[tests[index]['pk']]['note'] != ""){
-              column[6] = '<td><textarea rows="2">'+status[tests[index]['pk']]['note']+'</textarea></td>';
+              column[6] = '<td width="35%"><textarea style="width: 95%; height: 1.2em;">'+status[tests[index]['pk']]['note']+'</textarea></td>';
             } else {
-              column[6] = '<td><textarea rows="2"></textarea></td>';
+              column[6] = '<td width="35%"><textarea style="width: 95%; height: 1.2em;"></textarea></td>';
             }
-            column[7] = '<td>'+status[tests[index]['pk']]['timestamp']+'</td>'; 
+            column[7] = '<td width="17%">'+status[tests[index]['pk']]['timestamp']+'</td>'; 
 
             $("#id_table tbody:last").append('<tr></tr>');
             for (var i =0 ; i< column.length; i++){
