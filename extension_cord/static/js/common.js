@@ -289,9 +289,18 @@ var common={
                 
             newRow += common.getNameTD(tcPk, tcName, desc);
 
-            newRow += '<td>' + tests[index]['fields']['design_steps'].length + '</td>'
-                + '<td>' + tests[index]['fields']['priority'] + '</td>'
-                + '</tr>';
+            if (tests[index]['fields']['priority']){
+                newRow += '<td>' + tests[index]['fields']['design_steps'].length + '</td>'
+                    + '<td>' + tests[index]['fields']['priority'] + '</td>'
+                    + '</tr>';
+            }
+            else
+            {
+                newRow += '<td>' + tests[index]['fields']['design_steps'].length + '</td>'
+                    + '<td></td>'
+                    + '</tr>';
+             
+            }
 
             $('#id_table > tbody:last').append(newRow);
 
