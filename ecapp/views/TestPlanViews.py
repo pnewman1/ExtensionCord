@@ -39,8 +39,8 @@ def getBarData(testplan):
     for folder in Folder.objects.filter(parent=Folder.objects.get(name="root")):
         folder_data = {}
         annotated_status = {}
-        all_latest_results = Result.objects.filter(latest=True, testplan_testcase_link__testplan=testplan, testplan_testcase_link__testcase__enabled=1)
-        all_tptc_links = TestplanTestcaseLink.objects.filter(testplan=testplan, testcase__enabled=1)
+        all_latest_results = Result.objects.filter(latest=True, testplan_testcase_link__testplan=testplan, testplan_testcase_link__testcase__enabled=1, testplan_testcase_link__testcase__in=folder.in_testplan(testplan.id))
+        all_tptc_links = TestplanTestcaseLink.objects.filter(testplan=testplan, testcase__enabled=1, testcase__in=folder.in_testplan(testplan.id))
 
         if all_latest_results.exists():
             annotated_status = dict(all_latest_results.values_list('status').annotate(Count('id')))
