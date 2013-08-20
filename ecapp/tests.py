@@ -30,6 +30,8 @@ from datetime import date
 from ecapp.forms import TestCaseForm, TestPlanForm
 from django.test.client import RequestFactory
 
+from ecapp.views import RESTViews, OtherViews
+
 class TestCaseViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
@@ -85,19 +87,6 @@ class TestCaseViewsTest(TestCase):
         url = '/test_case/' + str(test_case.id) + '/modal/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-
-    def test_generate_folder_path(self):
-        # Testing for root
-        root_folder_id = ecapp.models.Folder.objects.get(name="root").id
-        self.assertEqual(ecapp.views.TestCaseViews.generate_folder_path(root_folder_id), "/")
-
-        # Testing for "/testfolder"
-        testfolder_folder_id = ecapp.models.Folder.objects.get(name="testfolder").id
-        self.assertEqual(ecapp.views.TestCaseViews.generate_folder_path(testfolder_folder_id), "/testfolder")
-
-        # Testing for "/testfolder/subfolder"
-        subfolder_folder_id = ecapp.models.Folder.objects.get(name="subfolder").id
-        self.assertEqual(ecapp.views.TestCaseViews.generate_folder_path(subfolder_folder_id), "/testfolder/subfolder")
 
 class TestPlanViewsTest(TestCase):
     def setUp(self):
@@ -172,11 +161,12 @@ class TestPlanViewsTest(TestCase):
 class RESTViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
-        sample_folder_in_root = ecapp.models.Folder.objects.create(name='folder_in_root', parent_id=1)
-        sample_sub_folder = ecapp.models.Folder.objects.create(name='sub_folder', parent_id=sample_folder_in_root.id)
-        sample_sub_sub_folder = ecapp.models.Folder.objects.create(name='sub_sub_folder', parent_id=sample_sub_folder.id)
-        test_in_sub_folder = ecapp.models.Folder.objects.create(name='test', parent_id=sample_sub_folder.id)
-        test_in_sub_sub_folder = ecapp.models.Folder.objects.create(name='test', parent_id=sample_sub_sub_folder.id)
+        root_folder = ecapp.models.Folder.objects.get(name='root')
+        sample_folder_in_root = ecapp.models.Folder.objects.create(name='folder_in_root', parent=root_folder)
+        sample_sub_folder = ecapp.models.Folder.objects.create(name='sub_folder', parent=sample_folder_in_root)
+        sample_sub_sub_folder = ecapp.models.Folder.objects.create(name='sub_sub_folder', parent=sample_sub_folder)
+        test_in_sub_folder = ecapp.models.Folder.objects.create(name='test', parent=sample_sub_folder)
+        test_in_sub_sub_folder = ecapp.models.Folder.objects.create(name='test', parent=sample_sub_sub_folder)
 
     def test_restAPI(self): 
         response = self.client.get('/api/')
@@ -185,24 +175,48 @@ class RESTViewsTest(TestCase):
     def test__folderpath_to_folderid(self):
 
         # Test the folder path 
-        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root"), 3)
-        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder"), 4)
-        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/sub_sub_folder"), 5)
+        folder_in_root = ecapp.models.Folder.objects.get(name="folder_in_root")
+        self.assertEqual(RESTViews._folderpath_to_folderid("/folder_in_root"), folder_in_root.id)
+        sub_folder = ecapp.models.Folder.objects.get(name="sub_folder")
+        self.assertEqual(RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder"), sub_folder.id)
+        sub_sub_folder = ecapp.models.Folder.objects.get(name="sub_sub_folder")
+        self.assertEqual(RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/sub_sub_folder"), sub_sub_folder.id)
 
         # Test a folder path which is not starting from root
-        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/sub_folder"), 0)
+        self.assertEqual(RESTViews._folderpath_to_folderid("/sub_folder"), 0)
 
         # Test folder path which is not exsists
-        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/wrong_folder"), 0)
+        self.assertEqual(RESTViews._folderpath_to_folderid("/wrong_folder"), 0)
 
         # Test folders with same name but diffrent places
-        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/test"), 6)
-        self.assertEqual(ecapp.views.RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/sub_sub_folder/test"), 7)
+        test_in_sub_folder = ecapp.models.Folder.objects.get(name="test", parent= sub_folder)
+        self.assertEqual(RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/test"), test_in_sub_folder.id)
+        test_in_sub_sub_folder = ecapp.models.Folder.objects.get(name="test", parent= sub_sub_folder)
+        self.assertEqual(RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/sub_sub_folder/test"), test_in_sub_sub_folder.id)
 
 class OtherViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
+        root_folder = ecapp.models.Folder.objects.get(name='root')
+        sample_folder_in_root = ecapp.models.Folder.objects.create(name='folder_in_root', parent=root_folder)
+        sample_sub_folder = ecapp.models.Folder.objects.create(name='sub_folder', parent=sample_folder_in_root)
+        sample_sub_sub_folder = ecapp.models.Folder.objects.create(name='sub_sub_folder', parent=sample_sub_folder)
+        test_in_sub_folder = ecapp.models.Folder.objects.create(name='test', parent=sample_sub_folder)
+        test_in_sub_sub_folder = ecapp.models.Folder.objects.create(name='test', parent=sample_sub_sub_folder)
 
     def test_help(self):
         response = self.client.get('/help/')
         self.assertEqual(response.status_code, 200)
+
+    def test_folder_and_child_folders_list(self):
+        folder_in_root = ecapp.models.Folder.objects.get(name="folder_in_root")
+        sub_folder = ecapp.models.Folder.objects.get(name="sub_folder")
+        sub_sub_folder = ecapp.models.Folder.objects.get(name="sub_sub_folder")
+        test_in_sub_folder = ecapp.models.Folder.objects.get(name="test", parent=sub_folder)
+        test_in_sub_sub_folder = ecapp.models.Folder.objects.get(name="test", parent=sub_sub_folder)
+        # folders in folder_in_root
+        self.assertEqual(OtherViews.folder_and_child_folders_list(folder_in_root.id), [folder_in_root.id, sub_folder.id, sub_sub_folder.id, test_in_sub_folder.id, test_in_sub_sub_folder.id])
+        # folders in sub_folder
+        self.assertEqual(OtherViews.folder_and_child_folders_list(sub_folder.id), [sub_folder.id, sub_sub_folder.id, test_in_sub_folder.id, test_in_sub_sub_folder.id])
+        # folders in sub_sub_folder
+        self.assertEqual(OtherViews.folder_and_child_folders_list(sub_sub_folder.id), [sub_sub_folder.id, test_in_sub_sub_folder.id])

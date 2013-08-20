@@ -40,28 +40,6 @@ logger = logging.getLogger(__name__)
 def generate_product_lookup():
     return Folder.objects.filter(parent__name="root").exclude(name="deletedfolders").order_by("name")
 
-def generate_folder_path(folder_id):
-    try:
-        folder = Folder.objects.get(id=folder_id)
-    except Folder.DoesNotExist:
-        logger.critical("DB is not configured.")
-        raise
-
-    if folder.name == "root":
-        folder_path = "/"
-    else:
-        parent = folder.parent
-        folder_path = str(folder)
-        while(True):
-            if parent.name == "root":
-                break
-            folder_path = str(parent) + "/" + folder_path
-            parent = parent.parent
-
-        folder_path = "/" + folder_path
-
-    return folder_path
-
 def test_case_summary_view(request):
     """ A view for listing the root cases in the database"""
     if TestCase.objects.count() == 0:
@@ -143,7 +121,6 @@ def test_case_edit(request, test_case_id=-1):
                 _add_steps(tc, request)
                 _add_uploads(tc, request)
                 testcase = tc
-                testcase.folder_path = generate_folder_path(request.POST['folder'])
                 testcase.updated_datetime = datetime.datetime.now(pytz.timezone('US/Pacific'))
                 testcase.updated_by = User.objects.get(username=updated_by)
                 testcase.save()
@@ -181,7 +158,7 @@ def test_case_edit(request, test_case_id=-1):
             folder_path = "/" + folder.name
         else:
             folder = Folder.objects.get(id=folder_id)
-            folder_path = generate_folder_path(folder_id)
+            folder_path = folder.folder_path()
         initial_value = {'author': author, 'folder': folder, 'folder_path': folder_path}
         form = TestCaseForm(instance=testcase, initial=initial_value)
 
@@ -213,7 +190,6 @@ def test_case_clone(request, test_case_id):
         form = TestCaseForm(request.POST)
         if form.is_valid():
             tc = form.save()
-            tc.folder_path = generate_folder_path(request.POST['folder'])
             tc.save()
             steps = request.POST['designsteplist']
             if steps:
@@ -236,7 +212,7 @@ def test_case_clone(request, test_case_id):
 
         testcase.description = testcase.description + "\n\n\nCLONED FROM\n=============\ntestcase id: " + str(testcase.id) + "\ntestcase name: " + testcase.name
         folderid = testcase.folder_id
-        folder_path = testcase.folder_path
+        folder_path = testcase.folder.folder_path()
         testcase.name = "CLONE OF " + testcase.name
         testcase.author = User.objects.get(username=author)
         prior_id = testcase.id

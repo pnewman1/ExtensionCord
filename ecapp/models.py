@@ -42,11 +42,15 @@ class Folder(models.Model):
         return Folder.objects.get(name="root")
 
     def folder_path_raw(self):
-        if(self.parent):
-            return self.parent.folder_path_raw() + "/" + str(self.name)
+        if self.name == "root":
+            return "/"
         else:
-            # this is the root node
-            return ""
+            folder_path = self.name
+            parent = self.parent
+            while parent.name != "root":
+                folder_path = parent.name + "/" + folder_path
+                parent = parent.parent
+            return "/" + folder_path
 
     def folder_path_display(self):
         raw = self.folder_path_raw()
@@ -58,7 +62,20 @@ class Folder(models.Model):
         return self.folder_path_raw()
 
     def in_testplan(self, testplan_id):
-        return TestPlan.objects.get(pk=testplan_id).testcases.filter(Q(folder_path__startswith=self.folder_path())|Q(folder_path__startswith="Subject"+self.folder_path()))
+        folder_and_child_folders_list = [self.id]
+        query_list = folder_and_child_folders_list
+        has_child = True
+        while has_child:
+            if len(query_list)>0 :
+                child_folders = Folder.objects.filter(parent_id__in=query_list)
+                query_list = []
+                for item in child_folders:
+                    folder_and_child_folders_list.append(item.id)
+                    query_list.append(item.id)
+            else:
+                has_child = False
+
+        return TestPlan.objects.get(pk=testplan_id).testcases.filter(folder_id__in=folder_and_child_folders_list)
 
     def child_nodes(self, testplan_id=None):
         node_list = []
@@ -173,7 +190,6 @@ class TestCase(models.Model):
         ('Hotfix', 'Hotfix'),
     )
     case_type = models.CharField(max_length=30, choices=CASE_TYPE_CHOICES, default='Regression', null=True, blank=True)
-    folder_path = models.CharField(max_length=500, null=True, blank=True)
     design_steps = models.ManyToManyField(DesignStep, null=True, blank=True, help_text='steps to run when executing this test case, and the expected results')
     uploads = models.ManyToManyField(UploadedFile, null=True, blank=True, help_text='files associated with this test case -')
 

@@ -39,13 +39,8 @@ def getBarData(testplan):
     for folder in Folder.objects.filter(parent=Folder.objects.get(name="root")):
         folder_data = {}
         annotated_status = {}
-
-        folder_path_cmp_string = folder.folder_path()
-        compatibility_folder_path_cmp_string = "Subject" + folder_path_cmp_string
-        all_latest_results = Result.objects.filter(latest=True, testplan_testcase_link__testplan=testplan, testplan_testcase_link__testcase__enabled=1)
-        all_latest_results = all_latest_results.filter(Q(testplan_testcase_link__testcase__folder_path__startswith=folder_path_cmp_string)|Q(testplan_testcase_link__testcase__folder_path__startswith=compatibility_folder_path_cmp_string))
-        all_tptc_links = TestplanTestcaseLink.objects.filter(testplan=testplan, testcase__enabled=1)
-        all_tptc_links = all_tptc_links.filter(Q(testcase__folder_path__startswith=folder_path_cmp_string)|Q(testcase__folder_path__startswith=compatibility_folder_path_cmp_string))
+        all_latest_results = Result.objects.filter(latest=True, testplan_testcase_link__testplan=testplan, testplan_testcase_link__testcase__enabled=1, testplan_testcase_link__testcase__in=folder.in_testplan(testplan.id))
+        all_tptc_links = TestplanTestcaseLink.objects.filter(testplan=testplan, testcase__enabled=1, testcase__in=folder.in_testplan(testplan.id))
 
         if all_latest_results.exists():
             annotated_status = dict(all_latest_results.values_list('status').annotate(Count('id')))
