@@ -361,7 +361,8 @@ def ajax_tests(request):
                 tests = tests.filter(is_automated=False)
         if request.GET.get('asproduct'):
             product = request.GET['asproduct'].replace("+", " ")
-            folder_id = Folder.objects.get(name=product).id
+            root_folder = Folder.objects.get(name='root')
+            folder_id = Folder.objects.get(name=product, parent=root_folder).id
             tests = tests.filter(folder_id__in=folder_and_child_folders_list(folder_id))
         if request.GET.get('asstatus'):
             asstatus = request.GET['asstatus'].split(',')
