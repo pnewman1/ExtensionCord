@@ -528,6 +528,10 @@ def ajax_testcasebulk(request):
                 testcase.enabled = True
             else:
                 testcase.enabled = False
+            if 'is_automated' in request.POST:
+                testcase.is_automated = True
+            else:
+                testcase.is_automated = False
             testcase.save()
 
     return HttpResponse()
