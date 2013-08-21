@@ -59,5 +59,5 @@ class TestCaseBulkForm(ModelForm):
     class Meta:
         model = TestCase
         fields = (
-            'folder', 'added_version', 'enabled', 'priority', 
+            'folder', 'added_version', 'enabled', 'is_automated', 'priority', 
             'product', 'case_type')
