@@ -322,6 +322,15 @@ def analyze(request, test_plan_id):
     """Graphs the results under a test plan"""
 
     testplan = TestPlan.objects.get(id=test_plan_id)
+    testplan_testcase_link = TestplanTestcaseLink.objects.filter(testplan=testplan)
+    automated_tests = testplan_testcase_link.filter(testcase__is_automated=True)
+    number_of_all_tests = testplan_testcase_link.count() 
+    number_of_automated_tests = automated_tests.count()
+    number_of_non_automated_tests = number_of_all_tests - number_of_automated_tests
+    percent_of_automated_tests = (float(number_of_automated_tests) / number_of_all_tests) * 100
+    percent_of_automated_tests = round(percent_of_automated_tests, 2)
+    percent_of_non_automated_tests = (float(number_of_non_automated_tests) / number_of_all_tests) * 100
+    percent_of_non_automated_tests = round(percent_of_non_automated_tests, 2)
     leftstr = request.GET.get('left', 'Priority')
     topstr = request.GET.get('top', 'Tester')
 
@@ -405,6 +414,11 @@ def analyze(request, test_plan_id):
 
     return render_to_response('test_plan_analyze.html', {
                                            'testplan': testplan,
+                                           'all_tests': number_of_all_tests,
+                                           'automated_tests': number_of_automated_tests,
+                                           'percent_of_automated_tests': percent_of_automated_tests,
+                                           'non_automated_tests': number_of_non_automated_tests,
+                                           'percent_of_non_automated_tests': percent_of_non_automated_tests,
                                            'headers': headers,
                                            'data': tablerows,
                                            'topstr': topstr,
