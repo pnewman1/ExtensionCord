@@ -27,4 +27,7 @@ $(document).ready(function(){
       legend: { show:true, location: 'e', border:null }
     }
   );
+  if (allTests == 0){
+    $("#chart1").hide();
+  }
 });
