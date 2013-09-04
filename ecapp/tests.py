@@ -33,6 +33,7 @@ from django.test.client import RequestFactory
 from ecapp.views import RESTViews, OtherViews
 
 class TestCaseViewsTest(TestCase):
+    fixtures = ['ecapp/fixtures/initial_data.json',]
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user('test', 'test@test.com', 'test')
@@ -89,6 +90,7 @@ class TestCaseViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 class TestPlanViewsTest(TestCase):
+    fixtures = ['ecapp/fixtures/initial_data.json',]
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user('test', 'test@test.com', 'test')
@@ -159,6 +161,7 @@ class TestPlanViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 class RESTViewsTest(TestCase):
+    fixtures = ['ecapp/fixtures/initial_data.json',]
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user('test_user', 'test_testuser@test.com', 'test')
@@ -230,6 +233,7 @@ class RESTViewsTest(TestCase):
         self.assertIn("FAIL", response.content)
         
 class OtherViewsTest(TestCase):
+    fixtures = ['ecapp/fixtures/initial_data.json',]
     def setUp(self):
         self.client = Client()
         root_folder = ecapp.models.Folder.objects.get(name='root')
