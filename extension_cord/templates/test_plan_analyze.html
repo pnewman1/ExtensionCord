@@ -30,7 +30,7 @@
   <div class="row-fluid leftmost">
     <h3>{{ testplan.name }}</h3>
     <ul class="nav nav-list">
-        <li><a href="#tests">Automated Tests vs Non Automated Tests</a></li>
+        <li><a href="#tests">Automated Tests vs Manual Tests</a></li>
         <li><a href="#reports">Report Parameters</a></li>
     </ul>
   </div>
@@ -50,7 +50,7 @@
   </div>
   <div class="row-fluid">
     <section id="tests">
-      <h3 >Automated Test vs. Non Automated Tests</h3>
+      <h3 >Automated Tests vs. Manual Tests</h3>
       <div id="chart1" style="float:left;">
       </div>
     </section>
@@ -67,7 +67,7 @@
           <td>{{ automated_tests }} ({{ percent_of_automated_tests }}%)</td>
         </tr>
         <tr>
-          <td>Non Automated Tests</td>
+          <td>Manual Tests</td>
           <td>{{ non_automated_tests }} ({{ percent_of_non_automated_tests }}%)</td>
         </tr>
       </tbody>
@@ -146,8 +146,9 @@
 
 <script type="text/javascript">
   var data = [
-    ['Automated Tests', {{ automated_tests }}],['Non Automated Tests', {{ non_automated_tests }}]
+    ['Automated Tests', {{ automated_tests }}],['Manual Tests', {{ non_automated_tests }}]
   ];
+  var allTests = {{ all_tests }}
 </script>
 <script type="text/javascript" src="/static/js/test_plan_analyze.js"></script>
 {% endblock  %}

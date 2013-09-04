@@ -327,9 +327,13 @@ def analyze(request, test_plan_id):
     number_of_all_tests = testplan_testcase_link.count() 
     number_of_automated_tests = automated_tests.count()
     number_of_non_automated_tests = number_of_all_tests - number_of_automated_tests
-    percent_of_automated_tests = (float(number_of_automated_tests) / number_of_all_tests) * 100
+    if number_of_all_tests == 0:
+        percent_of_automated_tests = 0
+        percent_of_non_automated_tests =0
+    else:
+        percent_of_automated_tests = (float(number_of_automated_tests) / number_of_all_tests) * 100
+        percent_of_non_automated_tests = (float(number_of_non_automated_tests) / number_of_all_tests) * 100
     percent_of_automated_tests = round(percent_of_automated_tests, 2)
-    percent_of_non_automated_tests = (float(number_of_non_automated_tests) / number_of_all_tests) * 100
     percent_of_non_automated_tests = round(percent_of_non_automated_tests, 2)
     leftstr = request.GET.get('left', 'Priority')
     topstr = request.GET.get('top', 'Tester')
