@@ -161,12 +161,19 @@ class TestPlanViewsTest(TestCase):
 class RESTViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
+        self.user = User.objects.create_user('test_user', 'test_testuser@test.com', 'test')
+        self.logged_in = self.client.login(username='test_user', password='test')
         root_folder = ecapp.models.Folder.objects.get(name='root')
         sample_folder_in_root = ecapp.models.Folder.objects.create(name='folder_in_root', parent=root_folder)
         sample_sub_folder = ecapp.models.Folder.objects.create(name='sub_folder', parent=sample_folder_in_root)
         sample_sub_sub_folder = ecapp.models.Folder.objects.create(name='sub_sub_folder', parent=sample_sub_folder)
         test_in_sub_folder = ecapp.models.Folder.objects.create(name='test', parent=sample_sub_folder)
         test_in_sub_sub_folder = ecapp.models.Folder.objects.create(name='test', parent=sample_sub_sub_folder)
+        sample_testcase = ecapp.models.TestCase.objects.create(name='sample_testcase', author=self.user, description="Sample Testcase", folder=sample_folder_in_root)
+        sample_testplan = ecapp.models.TestPlan.objects.create(name='sample_testplan', creator=self.user, start_date=date.today())
+        sample_testplan_testcase_link = ecapp.models.TestplanTestcaseLink.objects.create(testplan=sample_testplan, testcase=sample_testcase)
+        sample_result = ecapp.models.Result.objects.create(testplan_testcase_link=sample_testplan_testcase_link)
+        sample_testcase_not_in_testplan = ecapp.models.TestCase.objects.create(name='sample_testcase_not_in_testplan', author=self.user, description="Sample Testcase not in tespln", folder=sample_sub_folder)
 
     def test_restAPI(self): 
         response = self.client.get('/api/')
@@ -194,6 +201,34 @@ class RESTViewsTest(TestCase):
         test_in_sub_sub_folder = ecapp.models.Folder.objects.get(name="test", parent= sub_sub_folder)
         self.assertEqual(RESTViews._folderpath_to_folderid("/folder_in_root/sub_folder/sub_sub_folder/test"), test_in_sub_sub_folder.id)
 
+    def test_rest_result(self):
+        testcase = ecapp.models.TestCase.objects.get(name="sample_testcase")
+        testplan = ecapp.models.TestPlan.objects.get(name="sample_testplan")
+        testplan_testcase_link = ecapp.models.TestplanTestcaseLink.objects.get(testplan=testplan, testcase=testcase)
+        status_before_api = ecapp.models.Result.objects.get(testplan_testcase_link=testplan_testcase_link, latest=True).status
+        #test before updating the status
+        self.assertEqual(status_before_api, "failed")
+        data = {
+                "testcase_name": "sample_testcase",
+                "testplan_name": "sample_testplan",
+                "result": "passed",
+                "username": "test_user"
+               }
+        url = "/api/result"
+        response = self.client.post(url,data)
+        status_after_api = ecapp.models.Result.objects.get(testplan_testcase_link=testplan_testcase_link, latest=True).status
+        # test after updating the status
+        self.assertEqual(status_after_api, "passed")
+        data = {
+                "testcase_name": "sample_testcase_not_in_testplan",
+                "testplan_name": "sample_testplan",
+                "result": "passed",
+                "username": "test_user"
+               }
+        response = self.client.post(url,data)
+        # test for testcase not in testplan
+        self.assertIn("FAIL", response.content)
+        
 class OtherViewsTest(TestCase):
     def setUp(self):
         self.client = Client()

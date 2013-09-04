@@ -505,34 +505,20 @@ def rest_result(request):
 
                 return HttpResponse(simplejson.dumps(reply_dict))
 
-            # make sure testplan exists
-            try:
-                testplan = TestPlan.objects.get(name=testplan_name, enabled=True)
-            except ObjectDoesNotExist:
-                reply_dict['message'] = "FAIL: no enabled testplans found for name '%s'" % (testplan_name)
-                reply_dict['result_type'] = "Invalid testplan"
-                return HttpResponse(simplejson.dumps(reply_dict))
-
-            # make sure testcase exist
+            # make sure the testcase exists in the testplan
+            testplan = None
             testcase = None
-            if testcase_id:
-                try:
-                    testcase = TestCase.objects.get(id=testcase_id)
-                except ObjectDoesNotExist:
-                    reply_dict['message'] = "FAIL: given testcase_id '%d' does not exist" % (testcase_id)
-                    reply_dict['result_type'] = "Invalid testcase"
-                    return HttpResponse(simplejson.dumps(reply_dict))
-            else:
-                testcases = TestCase.objects.filter(name=testcase_name, enabled=True)
-                if len(testcases) > 1:
-                    reply_dict['message'] = "FAIL: Multiple enabled testcases found for name '%s'. Try using testcase_id or removing dupes" % (testcase_name)
-                    reply_dict['result_type'] = "Invalid testcase"
-                    return HttpResponse(simplejson.dumps(reply_dict))
-                if len(testcases) == 0:
-                    reply_dict['message'] = "FAIL: no enabled testcases found for name '%s'" % (testcase_name)
-                    reply_dict['result_type'] = "Invalid testcase"
-                    return HttpResponse(simplejson.dumps(reply_dict))
-                testcase = testcases[0]
+            try:
+                if testcase_id:
+                    testplan_testcase_link = TestplanTestcaseLink.objects.get(testcase__id=testcase_id, testcase__enabled=True, testplan__name=testplan_name, testplan__enabled=True)
+                else:
+                    testplan_testcase_link = TestplanTestcaseLink.objects.get(testcase__name=testcase_name, testcase__enabled=True, testplan__name=testplan_name, testplan__enabled=True)
+                testplan = testplan_testcase_link.testplan
+                testcase = testplan_testcase_link.testcase
+            except TestplanTestcaseLink.DoesNotExist:
+                reply_dict['message'] = "FAIL: no enabled testpaln for name '%s' found or testcas is not in testplan '%s'" %(testplan_name, testplan_name)
+                reply_dict['result_type'] = "Invalid testplan or testcase"
+                return HttpResponse(simplejson.dumps(reply_dict))
 
             # check if username is in the db, if not return error
             # note that a user in the active directory is not in the database
@@ -544,11 +530,6 @@ def rest_result(request):
                 reply_dict['result_type'] = "Invalid username"
                 return HttpResponse(simplejson.dumps(reply_dict))
 
-            # check if test case is under a test plan, if not return error
-            if testcase not in testplan.testcases.all():
-                reply_dict['message'] = 'FAIL: that test case is not under the test plan'
-                reply_dict['result_type'] = 'Invalid match'
-                return HttpResponse(simplejson.dumps(reply_dict))
 
             #everything passes save result
             testplan_testcase_link = TestplanTestcaseLink.objects.get(testplan=testplan, testcase=testcase)
