@@ -31,7 +31,7 @@ from pytz import timezone
 import json
 from exceptions import ValueError
 
-from ecapp.models import Folder, TestCase, TestPlan, Result, TestplanTestcaseLink, DesignStep, UploadedFile
+from ecapp.models import Folder, TestCase, TestPlan, Result, TestplanTestcaseLink, DesignStep, UploadedFile, User
 
 def index(request):
     """ view for the home page"""
@@ -525,6 +525,8 @@ def ajax_testcasebulk(request):
                 testcase.case_type = request.POST['case_type']
             if request.POST['folder']:
                 testcase.folder = Folder.objects.get(id=request.POST['folder'])
+            if request.POST['default_assignee']:
+                testcase.default_assignee = User.objects.get(id=request.POST['default_assignee'])
             if 'enabled' in request.POST:
                 testcase.enabled = True
             else:
