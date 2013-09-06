@@ -203,8 +203,8 @@ else:
 
 if LDAP == True:
     AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.ModelBackend',
         'ldap_groups.accounts.backends.ActiveDirectoryGroupMembershipSSLBackend',
+            'django.contrib.auth.backends.ModelBackend',
     )
 else:
     AUTHENTICATION_BACKENDS = (
