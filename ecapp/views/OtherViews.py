@@ -21,10 +21,11 @@ from django.template import RequestContext
 from django.core import serializers
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.db.models import Q, Max
+from django.db.models import Q, Max, Count
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
+from django.db import connection
 
 from pytz import timezone
 
@@ -538,3 +539,31 @@ def ajax_testcasebulk(request):
             testcase.save()
 
     return HttpResponse()
+
+def metrics_dashboard(request):
+	
+	#todo: use some of that awesome ORM stuff
+    cursor = connection.cursor()
+    cursor.execute("select count(*) as cnt, DATE_FORMAT(timestamp, \'%%Y-%%m-%%d\') as date_run from ecapp_result group by date_run")
+    total_results = []
+    for r in cursor.fetchall():
+         total_results.append([str(r[1]), int(r[0])])
+    
+    res_count = Result.objects.count()
+    top_testers = Result.objects.values('tester').annotate(cnt=Count('testplan_testcase_link')).order_by('-cnt')[:20]
+
+    
+    #cursor.execute("select count(*) as cnt, tc.id, tc.name, tc.is_automated from ecapp_result r, ecapp_testplantestcaselink tptc, ecapp_testcase tc where (r.testplan_testcase_link_id = tptc.id) and (tptc.testcase_id = tc.id) group by tc.id order by cnt desc limit 25")
+    top_25_tests = Result.objects.values('testplan_testcase_link__testcase__id', 'testplan_testcase_link__testcase__name', 'testplan_testcase_link__testcase__is_automated').annotate(cnt=Count('testplan_testcase_link__testcase')).order_by('-cnt')[:25]
+
+    #for t in cursor.fetchall():
+	#	top_25_tests.append(t)
+
+    top_25_manual_tests = Result.objects.filter(testplan_testcase_link__testcase__is_automated=False).values('testplan_testcase_link__testcase__id', 'testplan_testcase_link__testcase__name').annotate(cnt=Count('testplan_testcase_link__testcase')).order_by('-cnt')[:25]
+
+		
+    cursor.execute("select count(*), tc.is_automated from ecapp_result r, ecapp_testplantestcaselink tptc, ecapp_testcase tc where (r.testplan_testcase_link_id = tptc.id) and (tc.id = tptc.testcase_id) group by is_automated")
+    
+	
+    return render_to_response('metrics_dashboard.html', {'total_results': total_results, 'top_testers': top_testers, 'top_25_tests': top_25_tests, 'top_25_manual_tests': top_25_manual_tests,
+    }, context_instance=RequestContext(request))
