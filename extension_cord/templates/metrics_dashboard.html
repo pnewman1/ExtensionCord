@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% comment %}
+####
+#
+# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+####
+{% endcomment %}
+
+{% block title %}Metrics Dashboard{% endblock %}
+
+{% block content %}
+
+
+<div class="container-fluid" id="content">
+<div class="row-fluid">
+
+<div class="span3">
+{% comment %}
+#To Do List:
+#add number of tests added
+#number of automated vs manual
+#passes & failures over time
+#automated vs manual pie chart
+#bug creation
+{% endcomment %}
+<ul>
+<li><a href="#top25tests">Top 25 Most Executed Tests</a></li>
+<li><a href="#auto_candidates">Good Candidates for Automation</a></li>
+<li><a href="#toptesters">top testers</a></li>
+</ul>
+
+</div>
+
+<div class="span8">
+  <div id="plot" ></div>
+</div>
+
+</div>
+
+
+<div class="row-fluid">
+
+<div class="span3"></div>
+
+<div class="span8">
+
+<h2><a name="#toptesters">Top Testers</a></h2>
+
+<table class="table table-hover">
+	<tr><th>Tester</th><th>Tests Executed</th></tr>
+	{% for row in top_testers %}
+	<tr>
+		<td>{{row.tester}}</td><td>{{row.cnt}}</td>
+	</tr>
+	{% endfor %}
+</table>
+
+</div>
+
+</div>
+
+<div class="row-fluid">
+<div class="span3"></div>
+
+<div class="span4">
+
+<h2><a name="top25tests">Top 25 Tests</a></h2>
+<table class="table table-hover">
+    <tr><th>Executions</th><th>Name</th><th>Automated?</th></tr>
+	{% for test in top_25_tests %}
+	<tr>
+		<td><a href="/test_case/{{test.testplan_testcase_link__testcase__id}}/result">{{test.cnt}}</a></td><td><a href="/test_case/{{test.testplan_testcase_link__testcase__id}}">{{test.testplan_testcase_link__testcase__name}}</a></td>
+		{% if test.testplan_testcase_link__testcase__is_automated %}
+		  <td>Yes</td>
+		{% else %}
+		  <td>No</td>
+		{% endif %}
+	</tr>
+	{% endfor %}
+</table>
+
+</div>
+
+<div class="span4">
+
+<h2><a name="auto_candidates">Good Candidates for Automation</a></h2>
+<table class="table table-hover">
+    <tr><th>Executions</th><th>Name</th></tr>
+	{% for test in top_25_manual_tests %}
+	<tr>
+		<td><a href="/test_case/{{test.testplan_testcase_link__testcase__id}}/result">{{test.cnt}}</a></td><td><a href="/test_case/{{test.testplan_testcase_link__testcase__id}}">{{test.testplan_testcase_link__testcase__name}}</a></td>
+	</tr>
+	{% endfor %}
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<!--[if lt IE 9] -->
+<script language="javascript" type="text/javascript" src="/static/3p/excanvas.min.js"></script>
+<script language="javascript" type="text/javascript" src="/static/3p/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.pointLabels.min.js"></script>
+<script type="text/javascript" src="/static/3p/jqplot.highlighter.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/3p/jquery.jqplot.min.css" />
+<!-- end jq plot -->
+
+<script type="text/javascript">
+  var total_results = {{total_results|safe|default:"[]"}};
+  console.log(total_results);
+</script>
+
+<script type="text/javascript" src="/static/js/metrics_dashboard.js"></script>
+
+</div>
+
+{% endblock %}
