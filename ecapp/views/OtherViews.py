@@ -551,6 +551,7 @@ def metrics_dashboard(request):
     
     res_count = Result.objects.count()
     top_testers = Result.objects.values('tester').annotate(cnt=Count('testplan_testcase_link')).order_by('-cnt')[:20]
+    top_teams = Result.objects.exclude(testplan_testcase_link__testcase__product=None).exclude(testplan_testcase_link__testcase__product="").values('testplan_testcase_link__testcase__product').annotate(cnt=Count('testplan_testcase_link')).order_by('-cnt')[:20]
 
     
     #cursor.execute("select count(*) as cnt, tc.id, tc.name, tc.is_automated from ecapp_result r, ecapp_testplantestcaselink tptc, ecapp_testcase tc where (r.testplan_testcase_link_id = tptc.id) and (tptc.testcase_id = tc.id) group by tc.id order by cnt desc limit 25")
@@ -565,5 +566,5 @@ def metrics_dashboard(request):
     cursor.execute("select count(*), tc.is_automated from ecapp_result r, ecapp_testplantestcaselink tptc, ecapp_testcase tc where (r.testplan_testcase_link_id = tptc.id) and (tc.id = tptc.testcase_id) group by is_automated")
     
 	
-    return render_to_response('metrics_dashboard.html', {'total_results': total_results, 'top_testers': top_testers, 'top_25_tests': top_25_tests, 'top_25_manual_tests': top_25_manual_tests,
+    return render_to_response('metrics_dashboard.html', {'total_results': total_results, 'top_testers': top_testers, 'top_teams': top_teams, 'top_25_tests': top_25_tests, 'top_25_manual_tests': top_25_manual_tests,
     }, context_instance=RequestContext(request))
