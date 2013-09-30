@@ -36,6 +36,62 @@ from ecapp.forms import TestPlanForm
 def getBarData(testplan):
     """get bar graph data for a test plan"""
     report_data = []
+
+    #sql fun
+
+    #this gets all the results by folder by status
+    testcases = TestplanTestcaseLink.objects.raw("select tptc.id, count(r.status) as cnt, r.status, tc.folder_id, f.name as folder_name, f.parent_id from ecapp_testplantestcaselink tptc left outer join ecapp_result as r on tptc.id = r.testplan_testcase_link_id join ecapp_testcase as tc on tc.id = tptc.testcase_id join ecapp_folder as f on tc.folder_id = f.id where tptc.testplan_id = %s and (r.latest=1 or r.latest is null) group by folder_id, status" % testplan.id)
+
+    #this gets all the test cases in the plan by folder
+    alltestcases = TestplanTestcaseLink.objects.raw("select tptc.id, count(tptc.id) as cnt, tc.folder_id from ecapp_testplantestcaselink as tptc join ecapp_testcase as tc on tptc.testcase_id = tc.id where tptc.testplan_id = %s group by tc.folder_id" % testplan.id)
+
+    #this gets the count of the ones that haven't run by folder
+    notrun = TestplanTestcaseLink.objects.raw("select tptc.id, count(tptc.id) as cnt, tptc.testcase_id, r.status, tc.folder_id from ecapp_testplantestcaselink as tptc left outer join ecapp_result as r on tptc.id = r.testplan_testcase_link_id join ecapp_testcase as tc on tptc.testcase_id = tc.id where r.testplan_testcase_link_id is null and tptc.testplan_id = %s group by folder_id;" % testplan.id)
+
+    folder_data = {}
+
+    #here we build the main part of the dictionary
+    for t in testcases:
+        if t.folder_id not in folder_data:
+            folder_data[t.folder_id] = {}
+            folder_data[t.folder_id]["team"] = t.folder_name
+            folder_data[t.folder_id]["teamoption"] = t.folder_name.replace(" ", "+")
+            folder_data[t.folder_id]["id"] = t.folder_id
+            folder_data[t.folder_id]["parent_id"] = t.parent_id
+
+            #this is an excursion off in to folder parent land. Not done yet.
+            parent = Folder.objects.get(id=t.parent_id)
+            while parent.name != "root":
+                if parent.id not in folder_data:
+                    folder_data[parent.id] = {}
+                    folder_data[parent.id]["id"] = parent.id
+                    folder_data[parent.id]["parent_id"] = parent.parent_id
+                    folder_data[parent.id]["team"] = parent.name
+                parent = Folder.objects.get(id=parent.parent.id)
+
+        folder_data[t.folder_id][t.status] = t.cnt 
+        folder_data[t.folder_id]["notrun"] = 0
+
+    #pop on the not-runs
+    for nr in notrun:
+        folder_data[nr.folder_id]["notrun"] = nr.cnt
+
+    #pop on the total, and do the aggregate calculations
+    for at in alltestcases:
+        folder_data[at.folder_id]["total"] = at.cnt
+        if "passed" not in folder_data[at.folder_id]:
+            folder_data[at.folder_id]["passed"] = 0
+        folder_data[at.folder_id]["actual"] = folder_data[at.folder_id]["passed"]/float(folder_data[at.folder_id]["total"] or 1)*100.0
+        folder_data[at.folder_id]["progress"] = (folder_data[at.folder_id]["total"] - folder_data[at.folder_id]["notrun"])/float(folder_data[at.folder_id]["total"] or 1)*100
+
+    #this is for backward compatibility with the template code. will go away eventually.
+    for f in folder_data:
+        print folder_data[f]
+        report_data.append(folder_data[f])
+
+###old code####
+
+
     for folder in Folder.objects.filter(parent=Folder.objects.get(name="root")):
         folder_data = {}
         annotated_status = {}
@@ -58,7 +114,7 @@ def getBarData(testplan):
         if folder_data["total"] > 0:
             folder_data["team"] = folder.name
             folder_data["teamoption"] = folder.name.replace(" ", "+")
-            report_data.append(folder_data)
+            #report_data.append(folder_data)
 
     return report_data
 
