@@ -86,6 +86,8 @@
     <table class="table table-bordered compact">
       <thead>
         <th>Team</th>
+        <th>ID</th>
+        <th>Parent</th>
         <th>Passed</th>
         <th>Failed</th>
         <th>N/A</th>
@@ -101,12 +103,14 @@
         {% for row in report_data %}
         <tr>
             <td>{{ row.team }}</td>
-            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=passed&asproduct={{row.teamoption}}">{{ row.passed }}</a></td>
-            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=failed&asproduct={{row.teamoption}}">{{ row.failed }}</a></td>
-            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=na&asproduct={{row.teamoption}}">{{ row.na }}</a></td>
-            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=blocked&asproduct={{row.teamoption}}">{{ row.blocked }}</a></td>
-            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=future&asproduct={{row.teamoption}}">{{ row.future }}</a></td>
-            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=notcomplet&asproduct={{row.teamoption}}">{{ row.notcomplet }}</a></td>
+            <td>{{ row.id }}</td>
+            <td>{{ row.parent_id }}</td>
+            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=failed&asproduct={{row.teamoption}}">{{ row.statuses.passed }}</a></td>
+            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=failed&asproduct={{row.teamoption}}">{{ row.statuses.failed }}</a></td>
+            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=na&asproduct={{row.teamoption}}">{{ row.statuses.na }}</a></td>
+            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=blocked&asproduct={{row.teamoption}}">{{ row.statuses.blocked }}</a></td>
+            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=future&asproduct={{row.teamoption}}">{{ row.statuses.future }}</a></td>
+            <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=notcomplet&asproduct={{row.teamoption}}">{{ row.statuses.notcomplet }}</a></td>
             <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=notrun&asproduct={{row.teamoption}}">{{ row.notrun }}</a></td>
           <td>{{ row.total }}</td>
           <td>{{ row.actual|floatformat:2 }}% </td>
