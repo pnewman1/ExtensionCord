@@ -59,8 +59,8 @@ def getBarData(testplan):
         if r.folder_id in results_dict:
             results_dict[r.folder_id][r.status] = r.cnt
         else:
-			results_dict[r.folder_id] = {}
-			results_dict[r.folder_id][r.status] = r.cnt
+            results_dict[r.folder_id] = {}
+            results_dict[r.folder_id][r.status] = r.cnt
 
     #here we build the main part of the dictionary
     for t in allfolders:
@@ -74,7 +74,7 @@ def getBarData(testplan):
             if t.folder_id in notrun_dict:
                 folder_data[t.folder_id]["notrun"] = notrun_dict[t.folder_id]
             else:
-				folder_data[t.folder_id]["notrun"] = 0
+                folder_data[t.folder_id]["notrun"] = 0
         if t.folder_id in results_dict:
             for r in results_dict[t.folder_id]:
                 print results_dict[t.folder_id]
@@ -82,7 +82,7 @@ def getBarData(testplan):
 
         #this is an excursion off in to folder parent land. Not done yet.
         parent = Folder.objects.get(id=t.parent_id)
-        while parent.name != "root":
+        while parent.parent != None:
             #we don't have this folder, so add it to the dict
             if parent.id not in folder_data:
                 folder_data[parent.id] = {}
@@ -92,16 +92,21 @@ def getBarData(testplan):
                 folder_data[parent.id]["total"] = t.cnt
                 folder_data[parent.id]["notrun"] = folder_data[t.folder_id]["notrun"]
                 folder_data[parent.id]["statuses"] = {}
-                for s in folder_data[t.folder_id]["statuses"]:
-                    folder_data[parent.id]["statuses"][s] = folder_data[t.folder_id]["statuses"][s]
+                if "statuses" in folder_data[t.folder_id]:
+                    for s in folder_data[t.folder_id]["statuses"]:
+                        folder_data[parent.id]["statuses"][s] = folder_data[t.folder_id]["statuses"][s]
+            #we do have this folder, so let's add the child folder's data to it
             else:
-				folder_data[parent.id]["total"] += t.cnt
-				folder_data[parent.id]["notrun"] += folder_data[t.folder_id]["notrun"]
-				for s in folder_data[t.folder_id]["statuses"]:
-					if s in folder_data[parent.id]["statuses"]:
-						folder_data[parent.id]["statuses"][s] += folder_data[t.folder_id]["statuses"][s]
-					else:
-						folder_data[parent.id]["statuses"][s] = folder_data[t.folder_id]["statuses"][s]
+                folder_data[parent.id]["total"] += t.cnt
+                folder_data[parent.id]["notrun"] += folder_data[t.folder_id]["notrun"]
+                if "statuses" not in folder_data[parent.id]:
+                    folder_data[parent.id]["statuses"] = {}
+                if "statuses" in folder_data[t.folder_id]:
+                    for s in folder_data[t.folder_id]["statuses"]:
+                        if s in folder_data[parent.id]["statuses"]:
+                            folder_data[parent.id]["statuses"][s] += folder_data[t.folder_id]["statuses"][s]
+                        else:
+                            folder_data[parent.id]["statuses"][s] = folder_data[t.folder_id]["statuses"][s]
                 
             parent = Folder.objects.get(id=parent.parent.id)
 
