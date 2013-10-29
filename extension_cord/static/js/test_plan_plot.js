@@ -95,4 +95,12 @@ $(document).ready(function () {
     var plot = Object.create(planPlot);
     plot.createGraph(pass_list, agg_pass_list, fail_list, agg_fail_list, mindate, maxdate);
     $("#tree-table").treetable({ expandable: true });
+    console.log($("#tree-table").treetable("node", "3").children);
+    $("#tree-table tbody").on("mousedown", "tr", function() {
+      $(".selected").not(this).removeClass("selected");
+      $(this).toggleClass("selected");
+    });
+
+
 })
+
