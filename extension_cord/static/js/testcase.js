@@ -170,7 +170,7 @@ var testcase = {
                     if (select) 
                     {
                         $("#folder-name").text(foldertree.folderName).css("font-size", "10pt");
-                        $("#asfolder").val(node.data.title);
+                        $("#asfolder").val(node.data.key);
                     }
                     else
                     {

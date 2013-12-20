@@ -355,7 +355,7 @@ def ajax_tests(request):
         if request.GET.get('asfeature'):
             tests = tests.filter(feature__icontains=request.GET['asfeature'])
         if request.GET.get('asfolder'):
-            tests = tests.filter(folder__name__icontains=request.GET['asfolder'])
+            tests = tests.filter(folder__id=request.GET['asfolder'])
         if request.GET.get('asauto') == "auto":
                 tests = tests.filter(is_automated=True)
         if request.GET.get('asauto') == "noauto":
