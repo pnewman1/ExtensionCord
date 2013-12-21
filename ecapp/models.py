@@ -188,6 +188,7 @@ class TestCase(models.Model):
         ('Manual Only', 'Manual Only'),
         ('Migration', 'Migration'),
         ('Hotfix', 'Hotfix'),
+        ('Production Sanity Check', 'Production Sanity Check'),
     )
     case_type = models.CharField(max_length=30, choices=CASE_TYPE_CHOICES, default='Regression', null=True, blank=True)
     design_steps = models.ManyToManyField(DesignStep, null=True, blank=True, help_text='steps to run when executing this test case, and the expected results')
