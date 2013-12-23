@@ -32,7 +32,7 @@ var state = {
     asstatus:[],
     bugid:"",
     addedversion:"",
-    astype:"",
+    astype:[],
     asfolder:"",
     asdefaultassignee:"",
     asfeature:"",
@@ -290,7 +290,11 @@ var testcase = {
         }
         state.bugid = allVars['bugid'] || "";
         state.addedversion = allVars['addedversion'] || "";
-        state.astype = allVars['astype'] || "";
+        if (allVars['astype']) {
+            state.astype = allVars['astype'].split(',');
+        } else {
+            state.astype = [];
+        }
         state.asfolder = allVars['asfolder'] || "";
         state.asdefaultassignee = allVars['asdefaultassignee'] || "";
         state.asfeature = allVars['asfeature'] || "";
@@ -317,7 +321,16 @@ var testcase = {
         if(state.asproduct.length) copystate.asproduct = state.asproduct;
         if(state.bugid.length) copystate.bugid = state.bugid;
         if(state.addedversion.length) copystate.addedversion = state.addedversion;
-        if(state.astype.length) copystate.astype = state.astype;
+        if(state.astype) {
+            copystate.astype = "";
+            for (var i=0; i<state.astype.length; i++) {
+                copystate.astype += state.astype[i];
+                copystate.astype += ",";
+            }
+            if (copystate.astype.length) {
+                copystate.astype = copystate.astype.slice(0,-1);
+            }
+        }
         if(state.asfolder.length) copystate.asfolder = state.asfolder;
         if(state.asdefaultassignee.length) copystate.asdefaultassignee = state.asdefaultassignee;
         if(state.asfeature.length) copystate.asfeature = state.asfeature;
