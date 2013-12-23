@@ -340,7 +340,10 @@ def ajax_tests(request):
         if request.GET.get('addedversion'):
             tests = tests.filter(added_version__icontains=request.GET['addedversion'])
         if request.GET.get('astype'):
-            tests = tests.filter(case_type__icontains=request.GET['astype'])
+            astype = []
+            for type in request.GET['astype'].split(','):
+                astype.append(type.replace("+", " "))
+            tests = tests.filter(case_type__in=astype)
         if request.GET.get('asdescription'):
             searchstring = request.GET['asdescription'].replace("+", " ")
             tests = tests.filter(description__icontains=searchstring)

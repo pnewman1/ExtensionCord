@@ -40,7 +40,21 @@
       <div> Author: </div><div><input type="text" id="asauthor" class="input-medium"></div>
       <div> Bug ID: </div><div><input type="text" id="bugid" class="input-medium"></div>
       <div> Added Version: </div><div><input type="text" id="addedversion" class="input-medium"></div>
-      <div> Type: </div><div><input type="text" id="astype" class="input-medium"></div>
+      <div> Type: </div>
+      <div>
+          <select id="astype" class="input-medium" multiple="multiple">
+              <option value=""></option>
+              <option value="regression">Regression</option>
+              <option value="mixed+mode">Mixed mode</option>
+              <option value="new+feature">New feature</option>
+              <option value="automated+regression">Automated Regression</option>
+              <option value="manual+only">Manual Only</option>
+              <option value="migration">Migration</option>
+              <option value="hotfix">Hotfix</option>
+              <option value="production+sanity+check">Production Sanity Check</option>
+
+          </select>
+      </div>
       <div> Automated: </div>
       <div>
           <select id='asauto' class="input-medium"> 
@@ -57,7 +71,7 @@
       <div> Product: </div>
       <div>
           <select id='asproduct' class="input-medium"> 
-              <option value=""></option> 
+              <option value=""></option>
               <option value="error">Error</option> 
           </select> 
       </div>
