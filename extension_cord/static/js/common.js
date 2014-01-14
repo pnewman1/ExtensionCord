@@ -233,6 +233,10 @@ var common={
     },
     getNameTD:function(tcPk, tcName, desc) {
         var row = '<td width="100%">';
+
+        //prevents page to render html code in description
+        var text_desc = String(desc).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
         if(common.hasDesc(desc)) {
             row += '<i id="showdetail_link_' + tcPk + '" style="margin-right:10px;" class="icon-plus"/>'
             + '<i id="hidedetail_link_' + tcPk + '" style="margin-right:10px;display:none;" class="icon-minus"/>';
@@ -241,7 +245,7 @@ var common={
         }
         row += '<a href="/test_case/' + tcPk + '/">' + tcName + '</a>';
         if(common.hasDesc(desc)) {
-            row += '<div id="description_' + tcPk + '" style="display:none;margin-left:40px;">' + desc + '</div>';
+            row += '<div id="description_' + tcPk + '" style="display:none;margin-left:40px;">' + text_desc + '</div>';
         }
         row += '</td>';
         return row;
