@@ -151,7 +151,7 @@ testcaseform = {
             autowidth: true,
             height: 'auto',
             editurl: '/ajax_designsteps/'+testcaseform.testcaseID+"/edit/",
-            caption: "Design Steps"
+            caption: "Steps"
         });
         $("#designstepstable").jqGrid('navGrid',testcaseform.designstepstable.pager,
             testcaseform.designstepstable.parameters, //options
