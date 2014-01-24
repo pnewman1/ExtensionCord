@@ -1,6 +1,6 @@
 /*
 *
-*   Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+*   Copyright (c) 2013, Deem Inc. All Rights Reserved.
 *
 *   Licensed under the Apache License, Version 2.0 (the "License");
 *   you may not use this file except in compliance with the License.
@@ -100,7 +100,6 @@ $(document).ready(function () {
       $(".selected").not(this).removeClass("selected");
       $(this).toggleClass("selected");
     });
-
 
 })
 

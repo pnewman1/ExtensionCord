@@ -1,6 +1,6 @@
 /*
 *
-*   Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+*   Copyright (c) 2013, Deem Inc. All Rights Reserved.
 *
 *   Licensed under the Apache License, Version 2.0 (the "License");
 *   you may not use this file except in compliance with the License.
@@ -233,6 +233,10 @@ var common={
     },
     getNameTD:function(tcPk, tcName, desc) {
         var row = '<td width="100%">';
+
+        //prevents page to render html code in description
+        var text_desc = String(desc).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
         if(common.hasDesc(desc)) {
             row += '<i id="showdetail_link_' + tcPk + '" style="margin-right:10px;" class="icon-plus"/>'
             + '<i id="hidedetail_link_' + tcPk + '" style="margin-right:10px;display:none;" class="icon-minus"/>';
@@ -241,7 +245,7 @@ var common={
         }
         row += '<a href="/test_case/' + tcPk + '/">' + tcName + '</a>';
         if(common.hasDesc(desc)) {
-            row += '<div id="description_' + tcPk + '" style="display:none;margin-left:40px;">' + desc + '</div>';
+            row += '<div id="description_' + tcPk + '" style="display:none;margin-left:40px;">' + text_desc + '</div>';
         }
         row += '</td>';
         return row;

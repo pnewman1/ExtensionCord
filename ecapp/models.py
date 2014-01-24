@@ -1,6 +1,6 @@
 ####
 #
-# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+# Copyright (c) 2013, Deem Inc. All Rights Reserved.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -188,6 +188,7 @@ class TestCase(models.Model):
         ('Manual Only', 'Manual Only'),
         ('Migration', 'Migration'),
         ('Hotfix', 'Hotfix'),
+        ('Production Sanity Check', 'Production Sanity Check'),
     )
     case_type = models.CharField(max_length=30, choices=CASE_TYPE_CHOICES, default='Regression', null=True, blank=True)
     design_steps = models.ManyToManyField(DesignStep, null=True, blank=True, help_text='steps to run when executing this test case, and the expected results')

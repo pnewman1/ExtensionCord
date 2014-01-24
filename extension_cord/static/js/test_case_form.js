@@ -1,6 +1,6 @@
 /*
 *
-*   Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+*   Copyright (c) 2013, Deem Inc. All Rights Reserved.
 *
 *   Licensed under the Apache License, Version 2.0 (the "License");
 *   you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ testcaseform = {
             autowidth: true,
             height: 'auto',
             editurl: '/ajax_designsteps/'+testcaseform.testcaseID+"/edit/",
-            caption: "Design Steps"
+            caption: "Steps"
         });
         $("#designstepstable").jqGrid('navGrid',testcaseform.designstepstable.pager,
             testcaseform.designstepstable.parameters, //options

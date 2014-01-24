@@ -1,6 +1,6 @@
 ####
 #
-# Copyright (c) 2013, Rearden Commerce Inc. All Rights Reserved.
+# Copyright (c) 2013, Deem Inc. All Rights Reserved.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -340,7 +340,10 @@ def ajax_tests(request):
         if request.GET.get('addedversion'):
             tests = tests.filter(added_version__icontains=request.GET['addedversion'])
         if request.GET.get('astype'):
-            tests = tests.filter(case_type__icontains=request.GET['astype'])
+            astype = []
+            for type in request.GET['astype'].split(','):
+                astype.append(type.replace("+", " "))
+            tests = tests.filter(case_type__in=astype)
         if request.GET.get('asdescription'):
             searchstring = request.GET['asdescription'].replace("+", " ")
             tests = tests.filter(description__icontains=searchstring)
@@ -355,7 +358,7 @@ def ajax_tests(request):
         if request.GET.get('asfeature'):
             tests = tests.filter(feature__icontains=request.GET['asfeature'])
         if request.GET.get('asfolder'):
-            tests = tests.filter(folder__name__icontains=request.GET['asfolder'])
+            tests = tests.filter(folder__id=request.GET['asfolder'])
         if request.GET.get('asauto') == "auto":
                 tests = tests.filter(is_automated=True)
         if request.GET.get('asauto') == "noauto":
@@ -551,6 +554,7 @@ def metrics_dashboard(request):
     
     res_count = Result.objects.count()
     top_testers = Result.objects.values('tester').annotate(cnt=Count('testplan_testcase_link')).order_by('-cnt')[:20]
+    top_teams = Result.objects.exclude(testplan_testcase_link__testcase__product=None).exclude(testplan_testcase_link__testcase__product="").values('testplan_testcase_link__testcase__product').annotate(cnt=Count('testplan_testcase_link')).order_by('-cnt')[:20]
 
     
     #cursor.execute("select count(*) as cnt, tc.id, tc.name, tc.is_automated from ecapp_result r, ecapp_testplantestcaselink tptc, ecapp_testcase tc where (r.testplan_testcase_link_id = tptc.id) and (tptc.testcase_id = tc.id) group by tc.id order by cnt desc limit 25")
@@ -565,5 +569,5 @@ def metrics_dashboard(request):
     cursor.execute("select count(*), tc.is_automated from ecapp_result r, ecapp_testplantestcaselink tptc, ecapp_testcase tc where (r.testplan_testcase_link_id = tptc.id) and (tc.id = tptc.testcase_id) group by is_automated")
     
 	
-    return render_to_response('metrics_dashboard.html', {'total_results': total_results, 'top_testers': top_testers, 'top_25_tests': top_25_tests, 'top_25_manual_tests': top_25_manual_tests,
+    return render_to_response('metrics_dashboard.html', {'total_results': total_results, 'top_testers': top_testers, 'top_teams': top_teams, 'top_25_tests': top_25_tests, 'top_25_manual_tests': top_25_manual_tests,
     }, context_instance=RequestContext(request))
