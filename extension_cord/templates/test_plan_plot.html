@@ -101,7 +101,8 @@
       </thead>
       <tbody>
         {% for row in report_data %}
-        <tr data-tt-id="{{row.id}}" {% if row.parent_id != 1 %} data-tt-parent-id="{{row.parent_id}}" {% endif %}>
+        {% if row.parent_id == 2 %}
+          <tr data-tt-id="{{row.id}}" {% if row.parent_id != 2 %} data-tt-parent-id="{{row.parent_id}}" {% endif %}>
             <td>{{ row.team }}</td>
             <td>{{ row.id }}</td>
             <td>{{ row.parent_id }}</td>
@@ -112,10 +113,11 @@
             <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=future&asproduct={{row.teamoption}}">{{ row.statuses.future }}</a></td>
             <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=notcomplet&asproduct={{row.teamoption}}">{{ row.statuses.notcomplet }}</a></td>
             <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=notrun&asproduct={{row.teamoption}}">{{ row.notrun }}</a></td>
-          <td>{{ row.total }}</td>
-          <td>{{ row.actual|floatformat:2 }}% </td>
-          <td>{{ row.progress|floatformat:2 }}% </td>
-        </tr>
+            <td>{{ row.total }}</td>
+            <td>{{ row.actual|floatformat:2 }}% </td>
+            <td>{{ row.progress|floatformat:2 }}% </td>
+          </tr>
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>
