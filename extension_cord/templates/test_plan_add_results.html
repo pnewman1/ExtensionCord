@@ -101,7 +101,27 @@
   </div>
 </div>
 
+<div id="bugModal" title="Link or Create a Bug" style="display: none;">
+  <p>Link an existing Bug to the Test Case or Create a new one </p>
+</div>
 
+<div id="linkModal" title="Link a Bug" style="display: none;">
+  <p>Enter the Bug ID to link to the Test Case:</p>
+  <input type="text" id="bugID">
+</div>
+
+<div id="createBugModal" title="Create a Bug" style="display: none;">
+  <form id="bugForm" method="post">
+      {{ bug_form }}
+  </form>
+</div>
+
+<div id="bugStatusModal" class="row-fluid" title="Bug Status" style="display: none;">
+
+</div>
+<div id="bugCreateModalMessage" class="row-fluid" style="display: none;">
+
+</div>
 </div>
 
 </div>

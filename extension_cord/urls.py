@@ -67,6 +67,8 @@ urlpatterns = patterns('ecapp.views',
     url(r'^ajax_removetests/(?P<testplan_id>\d+)/$','OtherViews.ajax_removetests', name="ajax_remove_tests"),
     url(r'^ajax_addresults/(?P<testplan_id>\d+)/$','OtherViews.ajax_addresults', name="ajax_add_results"),
     url(r'^ajax_showresults/(?P<testplan_id>\d+)/(?P<testcase_id>\d+)/$','OtherViews.ajax_showresults', name="ajax_show_results"),
+    url(r'^ajax_bugstatus/(?P<bug_id>.+?)/$','OtherViews.ajax_bugstatus', name="ajax_bug_status"),
+    url(r'^ajax_createbug/$','OtherViews.ajax_createbug', name="ajax_create_bug"),
 
     url(r'^api/$','RESTViews.restAPI', name='api'),
     url(r'^api/find_tests_by_folder/(?P<folder_id>\w{0,50})/$','RESTViews.rest_find_tests_by_folder', name='rest_find_tests_by_folder'),

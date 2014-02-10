@@ -18,20 +18,22 @@
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django import forms
+from django.conf import settings
 
 from ecapp.models import TestCase, TestPlan
 
+from jira.client import JIRA
+
 
 class TestCaseForm(ModelForm):
-
     author = forms.ModelChoiceField(queryset=User.objects.all(),
                                     widget=forms.HiddenInput())
     default_assignee = forms.ModelChoiceField(required=False,
-       queryset=User.objects.all().order_by('username'))
+                                              queryset=User.objects.all().order_by('username'))
     related_testcase = forms.ModelChoiceField(required=False,
-        queryset=TestCase.objects.all(), 
-        widget=forms.TextInput)
-    
+                                              queryset=TestCase.objects.all(),
+                                              widget=forms.TextInput)
+
     class Meta:
         model = TestCase
         fields = (
@@ -40,7 +42,7 @@ class TestCaseForm(ModelForm):
             'deprecated_version', 'language', 'test_script_file',
             'method_name', 'bug_id', 'related_testcase', 'import_id',
             'priority', 'product', 'feature', 'case_type',
-            'design_steps','uploads')
+            'design_steps', 'uploads')
 
 
 class TestPlanForm(ModelForm):
@@ -52,12 +54,34 @@ class TestPlanForm(ModelForm):
         fields = (
             'name', 'creator', 'enabled', 'start_date',
             'end_date', 'release', 'leader', 'schedule',
-            )
+        )
+
 
 class TestCaseBulkForm(ModelForm):
-    
     class Meta:
         model = TestCase
         fields = (
-            'folder', 'added_version', 'enabled', 'default_assignee', 'is_automated', 'priority', 
+            'folder', 'added_version', 'enabled', 'default_assignee', 'is_automated', 'priority',
             'product', 'case_type')
+
+
+def bug_project_choices():
+    jira = JIRA(options={'server': settings.BUG_SERVER}, basic_auth=(settings.BUG_USER, settings.BUG_PASSWORD))
+    projects = jira.projects()
+
+    choices = []
+    for project in projects:
+        choices.append((project.key, project.key))
+
+    return tuple(choices)
+
+
+class BugForm(forms.Form):
+    project = forms.ChoiceField(choices=bug_project_choices())
+    summary = forms.CharField()
+    priority = forms.ChoiceField(choices=(
+        ("Critical (P1)", 'Critical (P1)'), ('Major (P2)', 'Major (P2)'), ('Minor (P3)', 'Minor (P3)'),
+        ('Trivial (P4)', 'Trivial (P4)'),
+        ('Unassigned', 'Unassigned'), ('Blocker (retired)', 'Blocker (retired)')))
+    reporter = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}))
+    description = forms.CharField(widget=forms.Textarea)
