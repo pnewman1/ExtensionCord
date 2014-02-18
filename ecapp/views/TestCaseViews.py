@@ -30,7 +30,7 @@ from django.db.models import Count
 from django.contrib import messages
 from django.conf import settings
 
-from ecapp.models import TestCase, Folder, Result, DesignStep, UploadedFile, User
+from ecapp.models import TestCase, TestplanTestcaseLink, Folder, Result, DesignStep, UploadedFile, User
 from ecapp.forms import TestCaseForm, TestCaseBulkForm
 
 
@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 
 def generate_product_lookup():
     return Folder.objects.filter(parent__name="root").exclude(name="deletedfolders").order_by("name")
+
 
 def test_case_summary_view(request):
     """ A view for listing the root cases in the database"""
@@ -59,8 +60,9 @@ def test_case_summary_view(request):
                                'bulk_form': bulk_form,
                                'welcome': welcome,
                                'teams': json.dumps(Folder.get_root_folder().child_nodes())
-                               },
+                              },
                               context_instance=RequestContext(request))
+
 
 def _add_steps(testcase, request):
     req_steps = request.POST['designsteplist']
@@ -70,6 +72,7 @@ def _add_steps(testcase, request):
         for design_step in design_steps:
             testcase.design_steps.add(design_step)
 
+
 def _add_uploads(testcase, request):
     req_uploads = request.POST['uploadlist']
     if req_uploads:
@@ -78,11 +81,52 @@ def _add_uploads(testcase, request):
         for upload in uploads:
             testcase.uploads.add(upload)
 
+
 def _set_tc_id(tc_id):
     if tc_id != -1:
         return tc_id
     else:
         return None
+
+
+def find_previous_and_next_testcases(testcase_id, folder_id, testplan_id=None, testplan_action=None):
+    """
+    Finds and returns previous and next testcase IDs in a given folder or testplan set
+    @param testplan_action: it's None, add, review or result
+    @param testplan_id: test plan ID
+    @param testcase_id: test case ID
+    @param folder_id: folder ID
+    @return: previous and next testcase id in given set
+    """
+    testcases = TestCase.objects.filter(folder_id=folder_id, enabled=True).values_list("id",
+                                                                                                 flat=True).order_by(
+        "id")
+
+    if testplan_id:
+        testcases_in_testplan = TestplanTestcaseLink.objects.filter(testplan_id=testplan_id).values_list("testcase_id",
+                                                                                                         flat=True)
+
+        if testplan_action == "add":
+            testcases = testcases.exclude(id__in=testcases_in_testplan)
+        else:
+            testcases = testcases.filter(id__in=testcases_in_testplan)
+
+    previous_and_next_tests = {"previous": None, "next": None}
+    testcases_list = list(testcases)
+    testcase_index = testcases_list.index(testcase_id)
+
+    if len(testcases_list) != 1:
+        if testcase_index == 0:
+            previous_and_next_tests["previous"] = None
+            previous_and_next_tests["next"] = testcases_list[testcase_index + 1]
+        elif testcase_index == len(testcases_list) - 1:
+            previous_and_next_tests["previous"] = testcases_list[testcase_index - 1]
+            previous_and_next_tests["next"] = None
+        else:
+            previous_and_next_tests["previous"] = testcases_list[testcase_index - 1]
+            previous_and_next_tests["next"] = testcases_list[testcase_index + 1]
+
+    return previous_and_next_tests
 
 
 @login_required
@@ -95,6 +139,19 @@ def test_case_edit(request, test_case_id=-1):
         testcase = TestCase.objects.get(pk=test_case_id)
         author = testcase.author
 
+    if request.GET.get("folder"):
+        if request.GET.get("testplan"):
+            previous_and_next_tests = find_previous_and_next_testcases(testcase.id, request.GET.get("folder"),
+                                                            request.GET.get("testplan"),
+                                                            request.GET.get("testplan_action"))
+            url_parameters = "?folder=" + request.GET.get("folder") + "&testplan=" + request.GET.get(
+                "testplan") + "&testplan_action=" + request.GET.get("testplan_action")
+        else:
+            previous_and_next_tests = find_previous_and_next_testcases(testcase.id, request.GET.get("folder"))
+            url_parameters = "?folder=" + request.GET.get("folder")
+    else:
+        previous_and_next_tests = {"previous": None, "next": None}
+
     message = None
 
     if request.method == 'POST':
@@ -103,20 +160,22 @@ def test_case_edit(request, test_case_id=-1):
         if form.is_valid():
 
             # prevent to create a duplicate testcase with same name in a folder.
-            if test_case_id == -1 and TestCase.objects.filter(name=form.cleaned_data['name'], folder_id=request.POST['folder']).exists():
-                message = "The testcase name %s is already exsists. Please change it and try again." % form.cleaned_data['name']
+            if test_case_id == -1 and TestCase.objects.filter(name=form.cleaned_data['name'],
+                                                              folder_id=request.POST['folder']).exists():
+                message = "The testcase name %s is already exsists. Please change it and try again." % \
+                          form.cleaned_data['name']
                 messages.add_message(request, messages.ERROR, message)
                 return render_to_response('test_case_form.html',
-                                        {'form': form,
-                                        'type': 'View/Edit Test Case',
-                                        'author': author,
-                                        'updated_by': updated_by,
-                                        'test_case': testcase,
-                                        'product_lookup': generate_product_lookup(),
-                                        'id': _set_tc_id(test_case_id)
-                                        },
-                                        context_instance=RequestContext(request))
-            else:    
+                                          {'form': form,
+                                           'type': 'View/Edit Test Case',
+                                           'author': author,
+                                           'updated_by': updated_by,
+                                           'test_case': testcase,
+                                           'product_lookup': generate_product_lookup(),
+                                           'id': _set_tc_id(test_case_id)
+                                          },
+                                          context_instance=RequestContext(request))
+            else:
                 tc = form.save()
                 _add_steps(tc, request)
                 _add_uploads(tc, request)
@@ -135,7 +194,8 @@ def test_case_edit(request, test_case_id=-1):
             test_case_id = tc.id
             return HttpResponseRedirect(reverse('case_view', args=(tc.id,)))
         else:
-            messages.add_message(request, messages.ERROR, "There was a problem submitting the form. Please check the values and try again.")
+            messages.add_message(request, messages.ERROR,
+                                 "There was a problem submitting the form. Please check the values and try again.")
             return render_to_response('test_case_form.html',
                                       {'form': form,
                                        'type': 'View/Edit Test Case',
@@ -144,7 +204,7 @@ def test_case_edit(request, test_case_id=-1):
                                        'test_case': testcase,
                                        'product_lookup': generate_product_lookup(),
                                        'id': _set_tc_id(test_case_id)
-                                       },
+                                      },
                                       context_instance=RequestContext(request))
     else:
         if test_case_id == -1:
@@ -172,8 +232,10 @@ def test_case_edit(request, test_case_id=-1):
                                'foldername': folder,
                                'folder_path': folder_path,
                                'folderid': folder_id,
-                               'id': _set_tc_id(test_case_id)
-                               },
+                               'id': _set_tc_id(test_case_id),
+                               'previous_and_next_testcases': previous_and_next_tests,
+                               'url_parameters': url_parameters
+                              },
                               context_instance=RequestContext(request))
 
 
@@ -210,7 +272,8 @@ def test_case_clone(request, test_case_id):
             design_steps_dict[index]["id"] = clone_step.pk
         design_steps = json.dumps(design_steps_dict)
 
-        testcase.description = testcase.description + "\n\n\nCLONED FROM\n=============\ntestcase id: " + str(testcase.id) + "\ntestcase name: " + testcase.name
+        testcase.description = testcase.description + "\n\n\nCLONED FROM\n=============\ntestcase id: " + str(
+            testcase.id) + "\ntestcase name: " + testcase.name
         folderid = testcase.folder_id
         folder_path = testcase.folder.folder_path()
         testcase.name = "CLONE OF " + testcase.name
@@ -230,8 +293,8 @@ def test_case_clone(request, test_case_id):
                                                       'folderid': folderid,
                                                       'folder_path': folder_path,
                                                       'clone': True,
-                                                      },
-                                                      context_instance=RequestContext(request))
+    },
+                              context_instance=RequestContext(request))
 
 
 def test_case_plot(request, test_case_id):
@@ -244,15 +307,17 @@ def test_case_plot(request, test_case_id):
     if all_results:
         pass_query = all_results.filter(testplan_testcase_link__testcase=testcase, status='passed')
         fail_query = all_results.filter(testplan_testcase_link__testcase=testcase, status='failed')
-        mindate = str(int(all_results.aggregate(Min('timestamp')).get('timestamp__min').strftime("%s"))*1000)
-        maxdate = str(int(all_results.aggregate(Max('timestamp')).get('timestamp__max').strftime("%s"))*1000)
+        mindate = str(int(all_results.aggregate(Min('timestamp')).get('timestamp__min').strftime("%s")) * 1000)
+        maxdate = str(int(all_results.aggregate(Max('timestamp')).get('timestamp__max').strftime("%s")) * 1000)
         pass_list, fail_list = [], []
 
         #passed and failed counts with the corresponding dates
-        for item in pass_query.extra({'rundate': "date(timestamp)"}).values('rundate').annotate(count=Count('testplan_testcase_link__testcase')).order_by('rundate'):
+        for item in pass_query.extra({'rundate': "date(timestamp)"}).values('rundate').annotate(
+                count=Count('testplan_testcase_link__testcase')).order_by('rundate'):
             pass_list.append([str(item['rundate']), item['count']])
 
-        for item in fail_query.extra({'rundate': "date(timestamp)"}).values('rundate').annotate(count=Count('testplan_testcase_link__testcase')).order_by('rundate'):
+        for item in fail_query.extra({'rundate': "date(timestamp)"}).values('rundate').annotate(
+                count=Count('testplan_testcase_link__testcase')).order_by('rundate'):
             fail_list.append([str(item['rundate']), item['count']])
 
         #END PASS/FAIL#
@@ -264,33 +329,52 @@ def test_case_plot(request, test_case_id):
             'pass_list': pass_list,
             'fail_list': fail_list,
             'bug_url': settings.BUG_TRACKING_URL,
-             }, context_instance=RequestContext(request))
+        }, context_instance=RequestContext(request))
 
     else:
         return render_to_response('test_case_plot.html', {
             'all_results': all_results,
             'testcase': testcase,
-            }, context_instance=RequestContext(request))
+        }, context_instance=RequestContext(request))
+
 
 def test_case_view(request, test_case_id):
     testcase = TestCase.objects.get(id=test_case_id)
     design_steps = testcase.design_steps.all()
     uploads = testcase.uploads.all()
+    url_parameters = ""
+
+    if request.GET.get("folder"):
+        if request.GET.get("testplan"):
+            previous_and_next_tests = find_previous_and_next_testcases(testcase.id, request.GET.get("folder"),
+                                                            request.GET.get("testplan"),
+                                                            request.GET.get("testplan_action"))
+            url_parameters = "?folder=" + request.GET.get("folder") + "&testplan=" + request.GET.get(
+                "testplan") + "&testplan_action=" + request.GET.get("testplan_action")
+        else:
+            previous_and_next_tests = find_previous_and_next_testcases(testcase.id, request.GET.get("folder"))
+            url_parameters = "?folder=" + request.GET.get("folder")
+    else:
+        previous_and_next_tests = {"previous": None, "next": None}
 
     return render_to_response('test_case_view.html', {
-            'test_case': testcase,
-            'design_steps': design_steps,
-            'uploads': uploads,
-            'MEDIA_URL': settings.MEDIA_URL,
-            'id': _set_tc_id(test_case_id)
-            },context_instance=RequestContext(request))
+        'test_case': testcase,
+        'design_steps': design_steps,
+        'uploads': uploads,
+        'MEDIA_URL': settings.MEDIA_URL,
+        'id': _set_tc_id(test_case_id),
+        'previous_and_next_testcases': previous_and_next_tests,
+        'url_parameters': url_parameters
+
+    }, context_instance=RequestContext(request))
+
 
 def test_case_modal(request, test_case_id):
     testcase = TestCase.objects.get(id=test_case_id)
     design_steps = testcase.design_steps.all()
 
     return render_to_response('test_case_modal.html', {
-            'test_case': testcase,
-            'design_steps': design_steps,
-            'id': _set_tc_id(test_case_id)
-            }, context_instance=RequestContext(request))
+        'test_case': testcase,
+        'design_steps': design_steps,
+        'id': _set_tc_id(test_case_id)
+    }, context_instance=RequestContext(request))
