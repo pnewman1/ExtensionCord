@@ -65,19 +65,15 @@ class TestCaseBulkForm(ModelForm):
             'product', 'case_type')
 
 
-def bug_project_choices():
-    jira = JIRA(options={'server': settings.BUG_SERVER}, basic_auth=(settings.BUG_USER, settings.BUG_PASSWORD))
-    projects = jira.projects()
-
-    choices = []
-    for project in projects:
-        choices.append((project.key, project.key))
-
-    return tuple(choices)
-
-
 class BugForm(forms.Form):
-    project = forms.ChoiceField(choices=bug_project_choices())
+    try:
+        jira = JIRA(options={'server': settings.BUG_SERVER}, basic_auth=(settings.BUG_USER, settings.BUG_PASSWORD))
+        projects = jira.projects()
+
+        project = forms.ChoiceField(choices=tuple([(project.key, project.key) for project in jira.projects()]))
+    except:
+        project = forms.ChoiceField()
+
     summary = forms.CharField()
     priority = forms.ChoiceField(choices=(
         ("Critical (P1)", 'Critical (P1)'), ('Major (P2)', 'Major (P2)'), ('Minor (P3)', 'Minor (P3)'),

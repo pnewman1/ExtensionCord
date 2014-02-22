@@ -33,6 +33,7 @@ from jira.exceptions import JIRAError
 
 import json
 from exceptions import ValueError
+from requests import ConnectionError
 
 from ecapp.models import Folder, TestCase, TestPlan, Result, TestplanTestcaseLink, DesignStep, UploadedFile, User
 
@@ -580,17 +581,18 @@ def ajax_bugstatus(request, bug_id):
         resp["priority"] = issue.fields.priority.name
         resp["url"] = settings.BUG_TRACKING_URL
 
-    except JIRAError:
-        resp["error"] = "The bug Does Not Exist"
+    except JIRAError as e:
+        resp["error"] = e.text
+    except ConnectionError:
+        resp["error"] = "Failed to Connect to Bug Server."
 
     return HttpResponse(json.dumps(resp))
 
 
 def ajax_createbug(request):
-    jira = JIRA(options={'server': settings.BUG_SERVER}, basic_auth=(settings.BUG_USER, settings.BUG_PASSWORD))
     resp = {}
-
     try:
+        jira = JIRA(options={'server': settings.BUG_SERVER}, basic_auth=(settings.BUG_USER, settings.BUG_PASSWORD))
         new_bug = jira.create_issue(project={'key': request.POST.get("project")},
                                     summary=request.POST.get("summary"),
                                     description=request.POST.get("description"),
@@ -601,6 +603,10 @@ def ajax_createbug(request):
 
     except JIRAError as e:
         resp["error"] = e.text.values()[0]
+
+    except ConnectionError:
+        resp["error"] = "Failed to Connect to Bug Server."
+
 
     return  HttpResponse(json.dumps(resp))
 

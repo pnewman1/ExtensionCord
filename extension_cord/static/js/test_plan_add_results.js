@@ -184,7 +184,14 @@ var result = {
         var current_bugs = "";
         var testcase_id = this.id;
         var testcase_name = $(this).closest("tr").find('td:eq(2)').text();
+        var current_status 
+        var desc_string = "\n\nTest Case Name: " + testcase_name + "\n";
 
+        for (var key in result.STATUS){
+            if (result.STATUS[key] == $(this).data("status")){
+                current_status = key;
+            }
+        }
         if (($(this).closest("tr").find("a:.bugstatus(0)")[0]) != undefined){
             var bug_object = $(this).closest("tr").find("a:.bugstatus");
             for (i=0;i<bug_object.length;i++)
@@ -192,114 +199,105 @@ var result = {
                 current_bugs += bug_object[i].innerHTML + ",";
             }
         } 
-        //Get the current status
+        $('#id_summary').width(750);
+        $('#id_description').width(750);
+        $('#id_summary').val("ExtensionCord__TestCase: "+testcase_name+"__Status: "+current_status.toUpperCase());
+
+        //get designsteps information to create description field of the bug form
         $.ajax({
             type: "GET",
-            url: "/ajax_showresults/"+ state.planid +"/"+testcase_id+"/",
+            url: "/ajax_designsteps/"+testcase_id+"/fetch/",
             data: null,
             dataType: 'json',
             cache: false,
             success: function(data){
-                var current_status = ($.parseJSON(data["results"]))[0]['fields']['status'];
-                $('#id_summary').width(750);
-                $('#id_description').width(750);
-                $('#id_summary').val("ExtensionCord__TestCase: "+testcase_name+"__Status: "+current_status.toUpperCase());
-                $.ajax({
-                    type: "GET",
-                    url: "/ajax_designsteps/"+testcase_id+"/fetch/",
-                    data: null,
-                    dataType: 'json',
-                    cache: false,
-                    success: function(data){
-                        var desc_string = "\n\nTest Case Name: " + testcase_name + "\n";
-                        desc_string += "Test Case ID: " + testcase_id + "\n"; 
-                        desc_string += "Status: " + current_status.toUpperCase() + "\n\n";
-                        desc_string += "Design Steps: \n";
-                        desc_string += "#\tProcedure\tExpected\tComments\n";
-                        for (i=0;i<data['data'].length;i++){
-                            for(j=1;j<data['data'][i].length-2;j++){
-                                desc_string += data['data'][i][j];
-                                desc_string += '\t';
-                            }
-                        desc_string += '\n';
+                desc_string += "Test Case ID: " + testcase_id + "\n"; 
+                desc_string += "Status: " + current_status.toUpperCase() + "\n\n";
+                desc_string += "Design Steps: \n";
+                desc_string += "#\tProcedure\tExpected\tComments\n";
+                for (i=0;i<data['data'].length;i++){
+                    for(j=1;j<data['data'][i].length-2;j++){
+                        desc_string += data['data'][i][j];
+                        desc_string += '\t';
+                    }
+                desc_string += '\n';
+                }
+                $('#id_description').val(desc_string);
+            }
+        });
+
+        $('#bugModal').dialog({
+            modal: true,
+            buttons: {
+                "Link": function() {
+                    $('#linkModal').dialog({
+                        modal: true,
+                        buttons: {
+                            "Link": function() {
+                                var updated_bugs = current_bugs + $('#bugID').val();
+                                result.resultUpdater(testcase_id,updated_bugs,current_status);
+                                $(this).dialog("close");
+                            },
                         }
-                        $('#id_description').val(desc_string);
-                    }
-                });
-                $('#bugModal').dialog({
-                    modal: true,
-                    buttons: {
-                        "Link": function() {
-                            $('#linkModal').dialog({
-                                modal: true,
-                                buttons: {
-                                    "Link": function() {
-                                        var updated_bugs = current_bugs + $('#bugID').val();
-                                        result.resultUpdater(testcase_id,updated_bugs,current_status);
-                                        $(this).dialog("close");
-                                    },
-                                }
-                            });
-                            $(this).dialog("close");
-                        },
-                        "Create": function() {
-                            $('#createBugModal').dialog({
-                                modal: true,
-                                minWidth: 800,
-                                buttons: {
-                                    "Create": function() {
-                                        $.ajax({
-                                            type: "POST",
-                                            url: "/ajax_createbug/",
-                                            data: $("#bugForm").serializeArray(),
-                                            dataType: 'json',
-                                            cache: false,
-                                            success: function(data){
-                                                if (data['bug_id']){
-                                                    var bugs = current_bugs + data['bug_id'];
-                                                    result.resultUpdater(testcase_id,bugs,current_status);
-                                                    $('#bugCreateModalMessage').append("<a class='bugstatus' title='Click to see Bug Details' href='#' style='color: #0088CC;'>" + data['bug_id'] +"</a> has been creatred.");
-                                                    $('#bugCreateModalMessage').dialog({
-                                                        modal: true,
-                                                        title: "Success",
-                                                        minWidth: 400,
-                                                        buttons: {
-                                                            "OK": function() {
-                                                                $(this).dialog("close");
-                                                            }
-                                                        },
-                                                        close: function() {
-                                                            $('#bugCreateModalMessage').empty();
-                                                        }
-                                                    });
+                    });
+                    $(this).dialog("close");
+                },
+                "Create": function() {
+                    $('#createBugModal').dialog({
+                        modal: true,
+                        minWidth: 800,
+                        buttons: {
+                            "Create": function() {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/ajax_createbug/",
+                                    data: $("#bugForm").serializeArray(),
+                                    dataType: 'json',
+                                    cache: false,
+                                    success: function(data){
+                                        if (data['bug_id']){
+                                            var bugs = current_bugs + data['bug_id'];
+                                            result.resultUpdater(testcase_id,bugs,current_status);
+                                            $('#bugCreateModalMessage').append("<a class='bugstatus' title='Click to see Bug Details' href='#' style='color: #0088CC;'>" + data['bug_id'] +"</a> has been created.");
+                                            $('#bugCreateModalMessage').dialog({
+                                                modal: true,
+                                                title: "Success",
+                                                minWidth: 400,
+                                                buttons: {
+                                                    "OK": function() {
+                                                        $(this).dialog("close");
+                                                    }
+                                                },
+                                                close: function() {
+                                                    $('#bugCreateModalMessage').empty();
                                                 }
-                                                else
-                                                {
-                                                    $('#bugCreateModalMessage').append("<p><span style='color: red; font-size: 24px;'>&#9888;</span> "+data['error']+"</p>");
-                                                    $('#bugCreateModalMessage').dialog({
-                                                        modal: true,
-                                                        title: "Error",
-                                                        buttons: {
-                                                            "OK": function() {
-                                                                $(this).dialog("close");
-                                                            }
-                                                        },
-                                                        close: function() {
-                                                            $('#bugCreateModalMessage').empty();
-                                                        }
-                                                    });                                       
+                                            });
+                                        }
+                                        else
+                                        {
+                                            $('#bugCreateModalMessage').append("<p><span style='color: red; font-size: 24px;'>&#9888;</span> "+data['error']+"</p>");
+                                            $('#bugCreateModalMessage').dialog({
+                                                modal: true,
+                                                title: "Error",
+                                                buttons: {
+                                                    "OK": function() {
+                                                        $(this).dialog("close");
+                                                    }
+                                                },
+                                                close: function() {
+                                                    $('#bugCreateModalMessage').empty();
                                                 }
-                                            }
-                                        });
-                                        $(this).dialog("close");
+                                            });                                       
+                                        }
                                     }
-                                }
-                            });
-                            $(this).dialog("close");
-                        },
-                    }
-                });
-            },
+                                });
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                    $(this).dialog("close");
+                },
+            }
         });
     },
 
@@ -368,7 +366,10 @@ var result = {
         // iterate through each testcase
         for (index in tests) {
             var tcName = tests[index]['fields']['name'];
-            var link_create = '<a href="#" class="bugmodal pfbutton btn btn-mini" id='+tests[index]['pk']+'>Link/Create</a></';
+            var link_create = '';
+            if (status[tests[index]['pk']]["message"] == "Blocked" || status[tests[index]['pk']]["message"] == "Failed"){
+                link_create = '<a href="#" class="bugmodal pfbutton btn btn-mini" id='+tests[index]['pk']+' data-status='+ status[tests[index]['pk']]["message"] +'>Link/Create</a>';
+            }
             if (tests[index]['fields']['enabled'] == false){
                 tcName += ' (Disabled)';
             }
@@ -434,6 +435,11 @@ var result = {
             result.makeRowsWithData(tests, data['status']);
             common.updatePaginate(data);
             $("#select-all").attr("checked", false);
+
+            if (!connected){
+                $('td:nth-child(6)').hide();
+                $('th:nth-child(6)').hide();
+            }
         }
         else{
             currfolder = foldertree.getActiveKey()||-100;
