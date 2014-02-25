@@ -250,10 +250,13 @@ var common={
             row += '<a href="/test_case/' + tcPk + '">' + tcName + '</a>';
         }
         else if (state.planid == undefined){
-            row += '<a href="/test_case/' + tcPk + '/?folder=' + state.key + '">' + tcName + '</a>';
+            row += '<a href="/test_case/' + tcPk + '/?navigate=true">' + tcName + '</a>';
+        }
+        else if (testplan_action == "add"){
+            row += '<a href="/test_case/' + tcPk + '/?navigate=true&testplan=' + state.planid + '&testplan_add=true">' + tcName + '</a>';
         }
         else{
-            row += '<a href="/test_case/' + tcPk + '/?folder=' + state.key + '&testplan=' + state.planid + '&testplan_action=' + testplan_action + '">' + tcName + '</a>';
+            row += '<a href="/test_case/' + tcPk + '/?navigate=true&testplan=' + state.planid + '">' + tcName + '</a>';
         }
         if(common.hasDesc(desc)) {
             row += '<div id="description_' + tcPk + '" style="display:none;margin-left:40px;">' + text_desc + '</div>';
