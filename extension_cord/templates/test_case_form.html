@@ -41,10 +41,16 @@
     <div class="row-fluid">
       <div class="offset3 span9">
           <ul class="nav nav-pills">
-            <li><a href="/test_case/{{id}}"> View </a></li>
+            {% if previous_testcase  %}
+              <li><a href="/test_case/{{previous_testcase}}/edit/{{url_parameters}}"> Previous Test Case</a> </li>
+            {% endif %}
+            <li><a href="/test_case/{{id}}/{{url_parameters}}"> View </a></li>
             <li class="active"><a href="#">Edit&nbsp;Test&nbsp;Case&nbsp;Details</a></li>
             <li><a href="/test_case/{{id}}/result"> Execution History </a></li>
             <li><a href="/clone_test_case/{{id}}"> Clone This Test Case </a></li>
+            {% if next_testcase  %}
+              <li><a href="/test_case/{{next_testcase}}/edit/{{url_parameters}}"> Next Test Case</a> </li>
+            {% endif %}
           </ul>
       </div>
     </div>

@@ -360,11 +360,13 @@ var result = {
         $("#select-folder-button").hide();
     },
     makeRowsWithData:function (tests, status) {
+        var url_parameters = $.getUrlVars();
         // json data passed in from server must be "eval'ed"
         $("#id_table tbody").find("tr:gt(0)").remove(); //removes all rows (except head)
 
         // iterate through each testcase
         for (index in tests) {
+            var path = $(location).attr('pathname').split("/");
             var tcName = tests[index]['fields']['name'];
             var link_create = '';
             if (status[tests[index]['pk']]["message"] == "Blocked" || status[tests[index]['pk']]["message"] == "Failed"){
@@ -376,7 +378,13 @@ var result = {
             var column = [];
             column[0] = '<td width="1%"><input class="checkbox uneditable-input" type="checkbox" value='+tests[index]['pk']+'></td>';
             column[1] = '<td width="5%"><center><a href="#" class="resultdetails" id='+tests[index]['pk']+'><span class="badge '+ status[tests[index]['pk']]["type"]+'">' + status[tests[index]['pk']]["message"] + '</span></a></center></td>';
-            column[2] = '<td width="18%"><a href="/test_case/'+tests[index]['pk']+'">'+tests[index]['fields']['name']+'</a></td>';
+            if (url_parameters['search'] == 'true'){
+                column[2] = '<td width="18%"><a href="/test_case/'+tests[index]['pk']+'">'+tests[index]['fields']['name']+'</a></td>';
+            }
+            else{
+                column[2] = '<td width="18%"><a href="/test_case/'+tests[index]['pk']+'/?navigate=true&testplan=' + state.planid +'">'+tests[index]['fields']['name']+'</a></td>';
+            }
+            
             column[3] = '<td width="4%"><a href="#" class="testcasemodal" id='+tests[index]['pk']+'>Details</a></td>';
             if (tests[index]['fields']['default_assignee']){
               column[4] = '<td width="7%">'+tests[index]['fields']['default_assignee']+'</td>';
