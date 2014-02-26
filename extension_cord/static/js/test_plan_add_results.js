@@ -118,8 +118,20 @@ var result = {
         $("#id_table td input:checked").each(function() {
             var row = [];
             row.push(this.value);
+            if (($(this).closest("tr").find("a:.bugstatus(0)")[0]) == undefined){
+                row.push("");
+            }
+            else{
+                var bug_object = $(this).closest("tr").find("a:.bugstatus");
+                var bug_string = "";
+                for (i=0;i<bug_object.length;i++)
+                {
+                    bug_string += bug_object[i].innerHTML + ",";
+                }
+                row.push(bug_string);
+            }
+            
             row.push($(this).closest("tr").find("textarea:eq(0)").val());
-            row.push($(this).closest("tr").find("textarea:eq(1)").val());
             data.push(row);
         });
         $.ajax({
@@ -146,11 +158,203 @@ var result = {
         var testcase = event.target.id;
         result.fetchTestCaseModal(testcase);
     },
+    resultUpdater:function(testcase_id,bugs,status){
+        var data = [];
+        var update_element = [];
+        update_element.push(testcase_id);
+        update_element.push(bugs);
+        update_element.push("");
+
+        data.push(update_element);
+        $.ajax({
+            type: "POST",
+            url: "/ajax_addresults/"+ state.planid +"/",
+            data: { "type": status,
+                "data": JSON.stringify(data)
+            },
+            dataType: 'json',
+            cache: false,
+            success: function(data){
+                result.stateChangeCallback();
+                common.fireAlert(data["message"], data["alertType"]);
+            }
+        });
+    },
+    bugModalListener:function(event){
+        var current_bugs = "";
+        var testcase_id = this.id;
+        var testcase_name = $(this).closest("tr").find('td:eq(2)').text();
+        var current_status 
+        var desc_string = "\n\nTest Case Name: " + testcase_name + "\n";
+
+        for (var key in result.STATUS){
+            if (result.STATUS[key] == $(this).data("status")){
+                current_status = key;
+            }
+        }
+        if (($(this).closest("tr").find("a:.bugstatus(0)")[0]) != undefined){
+            var bug_object = $(this).closest("tr").find("a:.bugstatus");
+            for (i=0;i<bug_object.length;i++)
+            {
+                current_bugs += bug_object[i].innerHTML + ",";
+            }
+        } 
+        $('#id_summary').width(750);
+        $('#id_description').width(750);
+        $('#id_summary').val("ExtensionCord__TestCase: "+testcase_name+"__Status: "+current_status.toUpperCase());
+
+        //get designsteps information to create description field of the bug form
+        $.ajax({
+            type: "GET",
+            url: "/ajax_designsteps/"+testcase_id+"/fetch/",
+            data: null,
+            dataType: 'json',
+            cache: false,
+            success: function(data){
+                desc_string += "Test Case ID: " + testcase_id + "\n"; 
+                desc_string += "Status: " + current_status.toUpperCase() + "\n\n";
+                desc_string += "Design Steps: \n";
+                desc_string += "#\tProcedure\tExpected\tComments\n";
+                for (i=0;i<data['data'].length;i++){
+                    for(j=1;j<data['data'][i].length-2;j++){
+                        desc_string += data['data'][i][j];
+                        desc_string += '\t';
+                    }
+                desc_string += '\n';
+                }
+                $('#id_description').val(desc_string);
+            }
+        });
+
+        $('#bugModal').dialog({
+            modal: true,
+            buttons: {
+                "Link": function() {
+                    $('#linkModal').dialog({
+                        modal: true,
+                        buttons: {
+                            "Link": function() {
+                                var updated_bugs = current_bugs + $('#bugID').val();
+                                result.resultUpdater(testcase_id,updated_bugs,current_status);
+                                $(this).dialog("close");
+                            },
+                        }
+                    });
+                    $(this).dialog("close");
+                },
+                "Create": function() {
+                    $('#createBugModal').dialog({
+                        modal: true,
+                        minWidth: 800,
+                        buttons: {
+                            "Create": function() {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/ajax_createbug/",
+                                    data: $("#bugForm").serializeArray(),
+                                    dataType: 'json',
+                                    cache: false,
+                                    success: function(data){
+                                        if (data['bug_id']){
+                                            var bugs = current_bugs + data['bug_id'];
+                                            result.resultUpdater(testcase_id,bugs,current_status);
+                                            $('#bugCreateModalMessage').append("<a class='bugstatus' title='Click to see Bug Details' href='#' style='color: #0088CC;'>" + data['bug_id'] +"</a> has been created.");
+                                            $('#bugCreateModalMessage').dialog({
+                                                modal: true,
+                                                title: "Success",
+                                                minWidth: 400,
+                                                buttons: {
+                                                    "OK": function() {
+                                                        $(this).dialog("close");
+                                                    }
+                                                },
+                                                close: function() {
+                                                    $('#bugCreateModalMessage').empty();
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            $('#bugCreateModalMessage').append("<p><span style='color: red; font-size: 24px;'>&#9888;</span> "+data['error']+"</p>");
+                                            $('#bugCreateModalMessage').dialog({
+                                                modal: true,
+                                                title: "Error",
+                                                buttons: {
+                                                    "OK": function() {
+                                                        $(this).dialog("close");
+                                                    }
+                                                },
+                                                close: function() {
+                                                    $('#bugCreateModalMessage').empty();
+                                                }
+                                            });                                       
+                                        }
+                                    }
+                                });
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                    $(this).dialog("close");
+                },
+            }
+        });
+    },
+
+    bugStatusModalListener:function(event){
+        $('#bugStatusModal').append("<div id='please_wait'><p>Please Wait...</p><img src='/static/ajax-loader-2.gif' /></div>");
+        $.ajax({
+            type: "GET",
+            dataType: 'json',
+            url: "/ajax_bugstatus/"+ event.target.innerHTML +"/",
+            success: function(data){
+                $('#please_wait').remove();
+                if(data["error"] == undefined)
+                {
+                    $('#bugStatusModal').append("<table class='table table-bordered table-condensed' id='jira-status-table'></table>");
+                    var tr = []
+                    var bug_link = data['url'] + event.target.innerHTML;
+                    tr[0] = "<tr><td><strong>Bug ID:</strong></td><td>" + event.target.innerHTML + "</td><tr>";
+                    tr[1] = "<tr><td><strong>Status:</strong></td><td>" + data['status'] + "</td></tr>";
+                    tr[2] = "<tr><td><strong>Priority:</strong></td><td>" + data['priority'] + "</td></tr>";
+                    tr[3] = "<tr><td><strong>Assignee:</strong></td><td>" + data['assignee'] + "</td></tr>";
+                    tr[4] = "<tr><td><strong>Reporter:</strong></td><td>" + data['reporter'] + "</td></tr>";
+                    tr[5] = "<tr><td><strong>Summary:</strong></td><td>" + data['summary'] + "</td></tr>";
+                    tr[6] = "<tr><td><strong>Bug URL:</strong></td><td><a style='color: #08c' target='_blank' href=" + bug_link + ">" + bug_link + "</a></td></tr>";
+                    for (i=0; i<tr.length; i++){
+                        $('#jira-status-table').append(tr[i]);
+                    }
+                }
+                else
+                {
+                    $('#bugStatusModal').append("<div id='jira-error'></div>");
+                    $('#jira-error').append("<p><span class='ui-icon ui-icon-alert' style='float:left;'></span>" + data["error"] + "</p>");
+                }
+            }
+        });
+
+        $('#bugStatusModal').dialog({
+            modal:true,
+            minWidth: 600,
+            buttons: {
+                "OK": function() {
+                    $(this).dialog("close");
+                }
+            },
+            close: function() {
+                $('#bugStatusModal').empty();
+            }
+        });
+
+    },
     initialize:function(){
         common.setupCSRFAjaxPost();
         $(".pfbutton").live("click",result.pfClickListener);
         $(".resultdetails").live("click",result.resultClickListener);
-        $(".testcasemodal").live("click",result.tcModalListener); 
+        $(".testcasemodal").live("click",result.tcModalListener);
+        $(".bugmodal").live("click",result.bugModalListener);
+        $(".bugstatus").tooltip();
+        $(".bugstatus").live("click",result.bugStatusModalListener);
         $("#resultfilter").show();
         $("#folder-label").hide();
         $("#select-folder-button").hide();
@@ -162,6 +366,10 @@ var result = {
         // iterate through each testcase
         for (index in tests) {
             var tcName = tests[index]['fields']['name'];
+            var link_create = '';
+            if (status[tests[index]['pk']]["message"] == "Blocked" || status[tests[index]['pk']]["message"] == "Failed"){
+                link_create = '<a href="#" class="bugmodal pfbutton btn btn-mini" id='+tests[index]['pk']+' data-status='+ status[tests[index]['pk']]["message"] +'>Link/Create</a>';
+            }
             if (tests[index]['fields']['enabled'] == false){
                 tcName += ' (Disabled)';
             }
@@ -180,20 +388,21 @@ var result = {
               var bugs = status[tests[index]['pk']]['bug_id'].split(/[\s,]/);
               var bugs_link =''
               for (var i=0; i<bugs.length; i++) {
-                if(bugs[i] != ""){ 
-                  bugs_link += '<a href="'+bug_url+bugs[i]+'">' + bugs[i] + '</a><br />';
-                }
+                if(bugs[i] != ""){
+                  bugs_link += '<a href="#" class="bugstatus" title="Click to see Bug Details">' + bugs[i] + '</a><br />';
+               }
               }
-              column[5] = '<td width="13%"><textarea style="width: 90%; height: 1.2em;">'+status[tests[index]['pk']]['bug_id']+'</textarea><br />'+bugs_link+'</td>';   
-            } else {
-              column[5] = '<td width="13%"><textarea style="width: 90%; height: 1.2em;"></textarea></td>';
+              column[5] = '<td width="13%">'+bugs_link+link_create+'</td>';
+            }
+            else {
+                column[5] = '<td width="13%">' +link_create+ '</td>';
             }
             if (status[tests[index]['pk']]['note'] != ""){
               column[6] = '<td width="35%"><textarea style="width: 95%; height: 1.2em;">'+status[tests[index]['pk']]['note']+'</textarea></td>';
             } else {
               column[6] = '<td width="35%"><textarea style="width: 95%; height: 1.2em;"></textarea></td>';
             }
-            column[7] = '<td width="17%">'+status[tests[index]['pk']]['timestamp']+'</td>'; 
+            column[7] = '<td width="17%">'+status[tests[index]['pk']]['timestamp']+'</td>';
 
             $("#id_table tbody:last").append('<tr></tr>');
             for (var i =0 ; i< column.length; i++){
@@ -214,7 +423,7 @@ var result = {
             header[2] = '<th> Name </th>';
             header[3] = '<th> Details </th>';
             header[4] = '<th> Assignee </th>';
-            header[5] = '<th> BUG ID </th>';
+            header[5] = '<th> BUG ID</th>';
             header[6] = '<th> Comment </th>';
             header[7] = '<th> Date Run </th>';
             $("#id_table").append("<thead></thead>")
@@ -226,6 +435,11 @@ var result = {
             result.makeRowsWithData(tests, data['status']);
             common.updatePaginate(data);
             $("#select-all").attr("checked", false);
+
+            if (!connected){
+                $('td:nth-child(6)').hide();
+                $('th:nth-child(6)').hide();
+            }
         }
         else{
             currfolder = foldertree.getActiveKey()||-100;
