@@ -101,7 +101,7 @@ def test_case_edit(request, test_case_id=-1):
 
     url_parameters = ""
     previous_testcase = None
-    next_tescase = None
+    next_testcase = None
 
     if request.GET.get("navigate"):
         url_parameters += "?navigate=true"
@@ -110,13 +110,13 @@ def test_case_edit(request, test_case_id=-1):
             if request.GET.get("testplan_add"):
                 url_parameters += "&testplan_add=true"
                 previous_testcase = testcase.previous_testcase(testplan_id=request.GET.get("testplan"), add_testplan=True)
-                next_tescase = testcase.next_testcase(testplan_id=request.GET.get("testplan"), add_testplan=True)
+                next_testcase = testcase.next_testcase(testplan_id=request.GET.get("testplan"), add_testplan=True)
             else:
                 previous_testcase = testcase.previous_testcase(testplan_id=request.GET.get("testplan"))
-                next_tescase = testcase.next_testcase(testplan_id=request.GET.get("testplan"))
+                next_testcase = testcase.next_testcase(testplan_id=request.GET.get("testplan"))
         else:
             previous_testcase = testcase.previous_testcase()
-            next_tescase = testcase.next_testcase()
+            next_testcase = testcase.next_testcase()
 
     message = None
 
@@ -200,7 +200,7 @@ def test_case_edit(request, test_case_id=-1):
                                'folderid': folder_id,
                                'id': _set_tc_id(test_case_id),
                                'previous_testcase': previous_testcase,
-                               'next_testcase': next_tescase,
+                               'next_testcase': next_testcase,
                                'url_parameters': url_parameters
                               },
                               context_instance=RequestContext(request))
@@ -311,7 +311,7 @@ def test_case_view(request, test_case_id):
     uploads = testcase.uploads.all()
     url_parameters = ""
     previous_testcase = None
-    next_tescase = None
+    next_testcase = None
 
     if request.GET.get("navigate"):
         url_parameters += "?navigate=true"
@@ -320,13 +320,13 @@ def test_case_view(request, test_case_id):
             if request.GET.get("testplan_add"):
                 url_parameters += "&testplan_add=true"
                 previous_testcase = testcase.previous_testcase(testplan_id=request.GET.get("testplan"), add_testplan=True)
-                next_tescase = testcase.next_testcase(testplan_id=request.GET.get("testplan"), add_testplan=True)
+                next_testcase = testcase.next_testcase(testplan_id=request.GET.get("testplan"), add_testplan=True)
             else:
                 previous_testcase = testcase.previous_testcase(testplan_id=request.GET.get("testplan"))
-                next_tescase = testcase.next_testcase(testplan_id=request.GET.get("testplan"))
+                next_testcase = testcase.next_testcase(testplan_id=request.GET.get("testplan"))
         else:
             previous_testcase = testcase.previous_testcase()
-            next_tescase = testcase.next_testcase()
+            next_testcase = testcase.next_testcase()
 
     return render_to_response('test_case_view.html', {
         'test_case': testcase,
@@ -335,7 +335,7 @@ def test_case_view(request, test_case_id):
         'MEDIA_URL': settings.MEDIA_URL,
         'id': _set_tc_id(test_case_id),
         'previous_testcase': previous_testcase,
-        'next_testcase': next_tescase,
+        'next_testcase': next_testcase,
         'url_parameters': url_parameters
 
     }, context_instance=RequestContext(request))
