@@ -82,6 +82,7 @@ urlpatterns = patterns('ecapp.views',
     url(r'^api/testplan/$','RESTViews.rest_testplan', name='rest_testplan'),
     url(r'^api/testplan$','RESTViews.rest_testplan', name='rest_testplan'),
     url(r'^api/add_testcase_to_existing_testplan', 'RESTViews.rest_add_tc_to_existing_tp', name='rest_add_tc_to_existing_tp'),
+    url(r'^api/testcase/(?P<id>\d+)/update/$','RESTViews.rest_testcase_update', name='rest_testcase_update'),
 
     url(r'^help/$','OtherViews.help', name='help'),
     url(r'^metrics/$','OtherViews.metrics_dashboard', name='metrics'),
