@@ -250,6 +250,11 @@ class RESTViewsTest(TestCase):
         self.assertEquals(updated_testcase.name, "Name Updated By Testcase  Update API")
         self.assertEquals(updated_testcase.description, "Description Updated By TestCase Update API")
         self.assertEquals(updated_testcase.folder_id, ecapp.models.Folder.objects.get(name="sub_sub_folder").id)
+
+        #testing wrong field provided by user in josn
+        data = {"folderid": ecapp.models.Folder.objects.get(name="sub_sub_folder").id}
+        response = self.client.post(url, json.dumps(data), content_type='application/json')
+        self.assertEquals(response.content, '{"error": "Invalid field for Test Case"}')
         
 class OtherViewsTest(TestCase):
     fixtures = ['ecapp/fixtures/initial_data.json',]

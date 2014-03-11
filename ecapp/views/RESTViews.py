@@ -625,92 +625,92 @@ def rest_testcase_update(request, id):
     """
     if request.POST:
         reply_dict = {}
-        message = ""
         try:
             testcase = TestCase.objects.get(id=id)
             try:
                 data = json.loads(request.raw_post_data)
-                if len(data) == 1:
+                if len(data) == 1 and isinstance(data, list):
                     data = data[0]
-                for key in data:
-                    if key not in testcase.__dict__ and key not in ('design_steps', 'author','default_assignee'):
-                        return HttpResponse(simplejson.dumps({"error": "The %s is invalid field for Test Case" % key}))
-                    if key == 'name':
-                        testcase.name = data['name']
-                    if key == 'description':
-                        testcase.description = data['description']
-                    if key == 'author':
-                        try:
-                            testcase.author = User.objects.get(username=data['author'])
-                        except User.DoesNotExist:
-                            return HttpResponse(simplejson.dumps({"error": "Author %s not found" % data['author']}))
-                    if key == 'enabled':
-                        testcase.enabled = data['enabled']
-                    if key == 'is_automated':
-                        testcase.is_automated = data['is_automated']
-                    if key == 'default_assignee':
-                        try:
-                            testcase.default_assignee = User.objects.get(username=data['default_assignee'])
-                        except User.DoesNotExist:
-                            return HttpResponse(
-                                simplejson.dumps({"error": "Default Assignee %s not found" % data['default_assignee']}))
-                    if key == 'folder_id':
-                        try:
-                            folder = Folder.objects.get(id=data['folder_id'])
-                            testcase.folder = folder
-                        except Folder.DoesNotExist:
-                            return HttpResponse(
-                                simplejson.dumps({"error": "Folder ID %s not found" % data['folder_id']}))
-                    if key == 'added_version':
-                        testcase.added_version = data['added_version']
-                    if key == 'deprecated_version':
-                        testcase.deprecated_version = data['deprecated_version']
-                    if key == 'bug_id':
-                        testcase.bug_id = data['bug_id']
-                    if key == 'related_testcase_id':
-                        try:
-                            related_testcase = TestCase.objects.get(id=data['related_testcase_id'])
-                            testcase.related_testcase = related_testcase
-                        except TestCase.DoesNotExist:
-                            return HttpResponse(
-                                simplejson.dumps({"error": "Test Case %s not found" % data['related_testcase_id']}))
-                    if key == 'language':
-                        testcase.language = data['language']
-                    if key == 'test_script_file':
-                        testcase.test_script_file = data['test_script_file']
-                    if key == 'method_name':
-                        testcase.method_name = data['method_name']
-                    if key == 'import_id':
+                expected_keys = ['import_id', 'method_name', 'product', 'is_automated', 'name', 'language', 'author',
+                                    'design_steps', 'enabled', 'added_version', 'creation_date', 'bug_id',
+                                    'test_script_file', 'case_type', 'folder_id', 'deprecated_version', 'priority',
+                                    'default_assignee', 'related_testcase_id', 'description']
+                if not set(data.keys()).issubset(expected_keys):
+                    return HttpResponse(simplejson.dumps({"error": "Invalid field for Test Case"}))
+                if 'name' in data:
+                    testcase.name = data['name']
+                if 'description' in data:
+                    testcase.description = data['description']
+                if 'author' in data:
+                    try:
+                        testcase.author = User.objects.get(username=data['author'])
+                    except User.DoesNotExist:
+                        return HttpResponse(simplejson.dumps({"error": "Author %s not found" % data['author']}))
+                if 'enabled' in data:
+                    testcase.enabled = data['enabled']
+                if 'is_automated' in data:
+                    testcase.is_automated = data['is_automated']
+                if 'default_assignee' in data:
+                    try:
+                        testcase.default_assignee = User.objects.get(username=data['default_assignee'])
+                    except User.DoesNotExist:
+                        return HttpResponse(
+                            simplejson.dumps({"error": "Default Assignee %s not found" % data['default_assignee']}))
+                if 'folder_id' in data:
+                    try:
+                        folder = Folder.objects.get(id=data['folder_id'])
+                        testcase.folder = folder
+                    except Folder.DoesNotExist:
+                        return HttpResponse(simplejson.dumps({"error": "Folder ID %s not found" % data['folder_id']}))
+                if 'added_version' in data:
+                    testcase.added_version = data['added_version']
+                if 'deprecated_version' in data:
+                    testcase.deprecated_version = data['deprecated_version']
+                if 'bug_id' in data:
+                    testcase.bug_id = data['bug_id']
+                if 'related_testcase_id' in data:
+                    try:
+                        related_testcase = TestCase.objects.get(id=data['related_testcase_id'])
+                        testcase.related_testcase = related_testcase
+                    except TestCase.DoesNotExist:
+                        return HttpResponse(
+                            simplejson.dumps({"error": "Test Case %s not found" % data['related_testcase_id']}))
+                if 'language' in data:
+                    testcase.language = data['language']
+                if 'test_script_file' in data:
+                    testcase.test_script_file = data['test_script_file']
+                if 'method_name' in data:
+                    testcase.method_name = data['method_name']
+                if 'import_id' in data:
                         testcase.import_id = data['import_id']
-                    if key == 'creation_date':
-                        testcase.creation_date = data['creation_date']
-                    if key == 'priority':
-                        testcase.priority = data['priority']
-                    if key == 'product':
-                        testcase.product = data['product']
-                    if key == 'case_type':
-                        testcase.case_type = data['case_type']
-                    if key == 'design_steps':
-                        for item in data['design_steps']:
+                if 'creation_date' in data:
+                    testcase.creation_date = data['creation_date']
+                if 'priority' in data:
+                    testcase.priority = data['priority']
+                if 'product' in data:
+                    testcase.product = data['product']
+                if 'case_type' in data:
+                    testcase.case_type = data['case_type']
+                if 'design_steps' in data:
+                    for step_data in data['design_steps']:
+                        try:
+                            step = testcase.design_steps.get(step_number=step_data['step_number'])
+                            if 'procedure' in step_data:
+                                step.procedure = step_data['procedure']
+                            if 'expected' in step_data:
+                                step.expected = step_data['expected']
+                            if 'comments' in step_data:
+                                step.comments = step_data['comments']
+                            if 'import_id' in step_data:
+                                step.import_id = step_data['import_id']
                             try:
-                                step = testcase.design_steps.get(step_number=item['step_number'])
-                                if 'procedure' in item:
-                                    step.procedure = item['procedure']
-                                if 'expected' in item:
-                                    step.expected = item['expected']
-                                if 'comments' in item:
-                                    step.comments = item['comments']
-                                if 'import_id' in item:
-                                    step.import_id = item['import_id']
-                                try:
-                                    step.save()
-                                except Exception as e:
-                                    return HttpResponse(simplejson.dumps({"error": e.message}))
-                            except ObjectDoesNotExist as e:
+                                step.save()
+                            except Exception as e:
                                 return HttpResponse(simplejson.dumps({"error": e.message}))
+                        except ObjectDoesNotExist as e:
+                            return HttpResponse(simplejson.dumps({"error": e.message}))
 
-                    message += "%s : %s ," % (key, data[key])
-
+                message = ",".join(["%s : %s" % (key, data[key]) for key in data])
             except Exception as e:
                 return HttpResponse(simplejson.dumps({"error": "JSON ERROR: %s" % e.message}))
             try:
