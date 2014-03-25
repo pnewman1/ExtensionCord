@@ -233,6 +233,56 @@
   <p><b>Example usage with id being 1:</b></p>
   <code>curl http://host:port{% url rest_find_tests_by_folder 1 %}</code>
 
+  <h3>Update a TestCase API: /api/testcase/<small><i>testcase_id</i></small>/update/</h3>
+  <h4>POST Request</h4>
+  <p>Create a new Test Case by POSTing JSON.</p>
+  <pre>
+    INPUT:
+    A JSON array of TestCase objects to update.
+    Example: Will update the provided testcase with the following data:
+    [
+      {
+        "name": "Changed name by update API 1",
+        "description": "changed description by update API 1",
+        "author": "admin",
+        "enabled": true,
+        "is_automated": false,
+        "default_assignee": "admin",
+        "folder_id": 14475,
+        "added_version": "added version changed by update API",
+        "deprecated_version": "deprecated version changed by update API",
+        "bug_id": "SOMEBUG-1234",
+        "related_testcase_id": 52501,
+        "language": "J",
+        "test_script_file": "/some/path/to/script.sh",
+        "method_name": "MethodUnderTest",
+        "import_id": 42,
+        "creation_date": "2014-01-15T12:00:00",
+        "priority": "P2",
+        "product": "Extension Cord",
+        "case_type": "Regression",
+        "design_steps": [
+          {
+            "step_number": 1,
+            "procedure": "p1 changed by update API",
+            "expected": "e1 changed by update API",
+            "comments": "Comments 1 changed by update API",
+            "import_id": 42
+          },
+          {
+            "step_number": 2,
+            "procedure": "p2 changed by update API",
+            "expected": "e2 changed by update API"
+          }
+        ]
+      }
+    ]
+    OUTPUT:
+    An array of strings.
+
+  </pre>
+  <p><b>Example Usage with curl for testcase id=1 (with above JSON in file update_testcase.json):</b></p>
+  <p><code>curl -d @update_testcase.json http://host:port{% url rest_testcase_update 1 %}</code></p>
   <hr>
 </div>
 
