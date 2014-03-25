@@ -21,6 +21,7 @@ var state = {
     search:false,
     page:1,
     elems:50,
+    subfolder:false,
 
     nameordesc:"",
     asname:"",
@@ -56,6 +57,7 @@ var testcase = {
     },
     enterSearch:function() {
         state.search = true;
+        state.subfolder = $("#subfolder").is(':checked'); 
         state.page = 1;
         testcase.updateSearch();
         testcase.reload();
@@ -273,6 +275,7 @@ var testcase = {
         state.key = allVars['key']?allVars['key']:-100;
         state.disabled = 'true' === allVars['disabled'];
         state.search = 'true' === allVars['search'];
+        state.subfolder = 'true' === allVars['subfolder'];
         state.page = allVars['page']?allVars['page']:1;
         state.elems = allVars['elems']?allVars['elems']:50;
 
@@ -309,6 +312,7 @@ var testcase = {
         if(state.key!=-100) copystate.key = state.key;
         if(state.disabled) copystate.disabled = true;
         if(state.search) copystate.search = true;
+        if(state.subfolder) copystate.subfolder = true;
         if(state.page != 1) copystate.page = state.page;
         copystate.elems = state.elems;
 
