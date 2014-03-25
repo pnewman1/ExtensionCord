@@ -377,7 +377,11 @@ def ajax_tests(request):
         if request.GET.get('asfeature'):
             tests = tests.filter(feature__icontains=request.GET['asfeature'])
         if request.GET.get('asfolder'):
-            tests = tests.filter(folder__id=request.GET['asfolder'])
+            if request.GET.get('subfolder') == 'true':
+                folders_list = folder_and_child_folders_list(request.GET.get('asfolder'))
+                tests = tests.filter(folder__id__in=folders_list)
+            else:
+                tests = tests.filter(folder__id=request.GET['asfolder'])
         if request.GET.get('asauto') == "auto":
             tests = tests.filter(is_automated=True)
         if request.GET.get('asauto') == "noauto":
