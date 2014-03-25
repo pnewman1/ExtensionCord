@@ -232,6 +232,9 @@ var common={
         return (desc && desc != 'None' && $.trim(desc).length); 
     },
     getNameTD:function(tcPk, tcName, desc) {
+        var path = $(location).attr('pathname').split("/");
+        var testplan_action = path[path.length - 2];
+        var url_parameters = $.getUrlVars();
         var row = '<td width="100%">';
 
         //prevents page to render html code in description
@@ -243,7 +246,18 @@ var common={
         } else {
             row += '<i style="margin-right:10px;" class="icon-minus"/>';
         }
-        row += '<a href="/test_case/' + tcPk + '/">' + tcName + '</a>';
+        if (url_parameters['search'] == 'true'){
+            row += '<a href="/test_case/' + tcPk + '">' + tcName + '</a>';
+        }
+        else if (state.planid == undefined){
+            row += '<a href="/test_case/' + tcPk + '/?navigate=true">' + tcName + '</a>';
+        }
+        else if (testplan_action == "add"){
+            row += '<a href="/test_case/' + tcPk + '/?navigate=true&testplan=' + state.planid + '&testplan_add=true">' + tcName + '</a>';
+        }
+        else{
+            row += '<a href="/test_case/' + tcPk + '/?navigate=true&testplan=' + state.planid + '">' + tcName + '</a>';
+        }
         if(common.hasDesc(desc)) {
             row += '<div id="description_' + tcPk + '" style="display:none;margin-left:40px;">' + text_desc + '</div>';
         }

@@ -217,8 +217,11 @@ LOGIN_REDIRECT_URL = "/"
 #CUSTOM_VARIABLES
 ELEMENTS_PER_PAGE = 20
 
-# Set the bug tracking URL here:
-BUG_TRACKING_URL = 'http://jira.yourcompany.com/browse/'
+# Set the bug server information here:
+BUG_SERVER = 'http://jira.yourcompany.com'
+BUG_TRACKING_URL = BUG_SERVER + '/browse/'
+BUG_USER = 'user'
+BUG_PASSWORD = 'password'
 
 # local_settings.py variables override those in this file
 # local_settings.py is in .gitignore and isn't checked in

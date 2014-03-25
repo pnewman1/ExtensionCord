@@ -205,6 +205,52 @@ class TestCase(models.Model):
             self.creation_date = datetime.datetime.now(pytz.timezone('US/Pacific'))
         super(TestCase, self).save(*args, **kwargs)
 
+    def previous_testcase(self, testplan_id=None, add_testplan=False):
+        try:
+            if testplan_id:
+                if add_testplan:
+                    prev_test_id = TestCase.objects.filter(folder=self.folder, id__lt=self.id).exclude(
+                        id__in=TestplanTestcaseLink.objects.filter(testplan_id=testplan_id).values_list(
+                            "testcase_id")).order_by(
+                        '-id').values_list("id", flat=True)[0]
+                else:
+                    prev_test_id = \
+                        TestPlan.objects.get(id=testplan_id).testcases.filter(folder=self.folder,
+                                                                              id__lt=self.id).order_by(
+                            '-id').values_list("id", flat=True)[0]
+            else:
+                prev_test_id = \
+                    TestCase.objects.filter(folder=self.folder, id__lt=self.id).order_by('-id').values_list("id",
+                                                                                                            flat=True)[
+                        0]
+        except IndexError:
+            return None
+
+        return prev_test_id
+
+    def next_testcase(self, testplan_id=None, add_testplan=False):
+        try:
+            if testplan_id:
+                if add_testplan:
+                    next_test_id = TestCase.objects.filter(folder=self.folder, id__gt=self.id).exclude(
+                        id__in=TestplanTestcaseLink.objects.filter(testplan_id=testplan_id).values_list(
+                            "testcase_id")).order_by(
+                        'id').values_list("id", flat=True)[0]
+                else:
+                    next_test_id = \
+                        TestPlan.objects.get(id=testplan_id).testcases.filter(folder=self.folder,
+                                                                              id__gt=self.id).order_by(
+                            'id').values_list("id", flat=True)[0]
+            else:
+                next_test_id = \
+                    TestCase.objects.filter(folder=self.folder, id__gt=self.id).order_by('id').values_list("id",
+                                                                                                           flat=True)[
+                        0]
+        except IndexError:
+            return None
+
+        return next_test_id
+
 
 class ResultCounts:
     def __str__(self):

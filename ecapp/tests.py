@@ -32,6 +32,8 @@ from django.test.client import RequestFactory
 
 from ecapp.views import RESTViews, OtherViews
 
+import json
+
 class TestCaseViewsTest(TestCase):
     fixtures = ['ecapp/fixtures/initial_data.json',]
     def setUp(self):
@@ -231,6 +233,28 @@ class RESTViewsTest(TestCase):
         response = self.client.post(url,data)
         # test for testcase not in testplan
         self.assertIn("FAIL", response.content)
+
+    def test_rest_testcase_update(self):
+        testcase = ecapp.models.TestCase.objects.get(name="sample_testcase")
+        # test before update
+        self.assertEquals(testcase.name, "sample_testcase")
+        self.assertEquals(testcase.description, "Sample Testcase")
+        self.assertEquals(testcase.folder_id, ecapp.models.Folder.objects.get(name='folder_in_root').id)
+        data = {"name": "Name Updated By Testcase  Update API",
+                "description": "Description Updated By TestCase Update API",
+                "folder_id": ecapp.models.Folder.objects.get(name="sub_sub_folder").id}
+        url = "/api/testcase/%d/update/" % testcase.id
+        response = self.client.post(url, json.dumps(data), content_type='application/json')
+        #test after update
+        updated_testcase = ecapp.models.TestCase.objects.get(id = testcase.id)
+        self.assertEquals(updated_testcase.name, "Name Updated By Testcase  Update API")
+        self.assertEquals(updated_testcase.description, "Description Updated By TestCase Update API")
+        self.assertEquals(updated_testcase.folder_id, ecapp.models.Folder.objects.get(name="sub_sub_folder").id)
+
+        #testing wrong field provided by user in josn
+        data = {"folderid": ecapp.models.Folder.objects.get(name="sub_sub_folder").id}
+        response = self.client.post(url, json.dumps(data), content_type='application/json')
+        self.assertEquals(response.content, '{"error": "Invalid field for Test Case"}')
         
 class OtherViewsTest(TestCase):
     fixtures = ['ecapp/fixtures/initial_data.json',]

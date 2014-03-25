@@ -20,6 +20,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
@@ -30,8 +31,9 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from ecapp.models import Result, TestPlan, TestplanTestcaseLink, Folder, TestCase
-from ecapp.forms import TestPlanForm
+from ecapp.forms import TestPlanForm, BugForm
 
+from jira.client import JIRA
 
 def getBarData(testplan):
     """get bar graph data for a test plan"""
@@ -205,13 +207,24 @@ def test_plan_add_results(request, test_plan_id):
     """ Called when results are added to a test plan """
 
     testplan = TestPlan.objects.get(id=test_plan_id)
-    tests = testplan.testcases.filter(enabled=True)
+
+    # Check the connection to the bug server
+    try:
+        jira = JIRA(options={'server': settings.BUG_SERVER}, basic_auth=(settings.BUG_USER, settings.BUG_PASSWORD))
+        jira.server_info()
+        connected = "true"
+
+    except:
+        connected = "false"
+
     return render_to_response('test_plan_add_results.html', {
         'plan': testplan,
-        'tests': tests,
+        'tests': testplan.testcases.filter(enabled=True),
         'results': Result.objects.filter(testplan_testcase_link__testplan=testplan),
         'teams': json.dumps(Folder.get_root_folder().child_nodes(test_plan_id)),
-        'bug_url': settings.BUG_TRACKING_URL
+        'bug_url': settings.BUG_TRACKING_URL,
+        'bug_form': BugForm(initial={'reporter': request.user}),
+        'connected': connected
         }, context_instance=RequestContext(request))
 
 
