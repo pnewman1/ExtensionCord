@@ -83,12 +83,9 @@
   </div>
   <div class="row-fluid">
     <h4>Progress Report</h4>
-    <table id="tree-table" class="treetable">
+    <table class="table table-bordered compact">
       <thead>
-        <th>Team</th>
-        <th>ID</th>
-        <th>Parent</th>
-        <th>Passed</th>
+        <th>Team</th>        <th>Passed</th>
         <th>Failed</th>
         <th>N/A</th>
         <th>Blocked</th>
@@ -104,8 +101,6 @@
         {% if row.parent_id == 2 %}
           <tr data-tt-id="{{row.id}}" {% if row.parent_id != 2 %} data-tt-parent-id="{{row.parent_id}}" {% endif %}>
             <td>{{ row.team }}</td>
-            <td>{{ row.id }}</td>
-            <td>{{ row.parent_id }}</td>
             <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=failed&asproduct={{row.teamoption}}">{{ row.statuses.passed }}</a></td>
             <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=failed&asproduct={{row.teamoption}}">{{ row.statuses.failed }}</a></td>
             <td><a href="{% url plan_add_results testplan.id %}?search=true&asstatus=na&asproduct={{row.teamoption}}">{{ row.statuses.na }}</a></td>
