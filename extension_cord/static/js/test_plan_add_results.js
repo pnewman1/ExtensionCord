@@ -114,6 +114,7 @@ var result = {
         });
     },
     pfClickListener:function(event){
+		event.preventDefault();
         var data = [];
         $("#id_table td input:checked").each(function() {
             var row = [];
