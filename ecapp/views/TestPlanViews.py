@@ -79,7 +79,6 @@ def getBarData(testplan):
                 folder_data[t.folder_id]["notrun"] = 0
         if t.folder_id in results_dict:
             for r in results_dict[t.folder_id]:
-                print results_dict[t.folder_id]
                 folder_data[t.folder_id]["statuses"] = results_dict[t.folder_id]
 
         #this is an excursion off in to folder parent land. Not done yet.
