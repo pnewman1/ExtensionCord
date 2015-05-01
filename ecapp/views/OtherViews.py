@@ -535,6 +535,11 @@ def ajax_renamefolder(request):
 
     return HttpResponse(json.dumps(resp))
 
+def ajax_repartfolder(request):
+
+    folder = Folder.objects.get(pk=request.GET['key'])
+    
+
 
 def help(request):
     """ view for the help page"""

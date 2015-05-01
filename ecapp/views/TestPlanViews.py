@@ -150,6 +150,8 @@ def _generate_test_views(request, plans):
     all_plans_count = TestPlan.objects.count()
     all_tests_count = TestCase.objects.count()
     
+    #testplans_sql = TestPlan.objects.raw("select tp.id, tp.name, tp.start_date, tp.end_date, count(l.id) as tc_cnt from ecapp_testplan tp join ecapp_testplantestcaselink l on (tp.id = l.testplan_id) join ecapp_testcase tc on (tc.id = l.testcase_id) where tc.enabled = 1 group by tp.id;")
+    
     if (all_plans_count > 0) or (all_tests_count > 0):
         welcome = False
     else:
@@ -306,9 +308,12 @@ def clone_test_plan_view(request, test_plan_id):
 
         form = TestPlanForm(request.POST)
         prevous_testplan = TestPlan.objects.get(id=request.POST['previous_plan_id'])
-
-        testplan = form.save()
-        message = "Edited the plan successfully"
+        try:
+            testplan = form.save()
+            message = "Edited the plan successfully"
+        except:
+            message = "it failed"
+            return render_to_response('test_plan_form.html', {'form': form, 'type': 'Clone Test Plan', 'plan': prevous_testplan, 'name': prevous_testplan.name}, context_instance=RequestContext(request))
 
         tests = prevous_testplan.testcases.all()
 
